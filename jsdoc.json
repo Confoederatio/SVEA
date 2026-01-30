@@ -1,0 +1,29 @@
+{
+  "source": {
+    "include": ["UF"],
+    "includePattern": ".+\\.(js|jsx|mjs)$",
+    "exclude": ["UF/libraries/"],
+    "excludePattern": "(^|\\/|\\\\)_"
+  },
+  "plugins": [
+    "plugins/markdown",
+    "./docs/autodoc/publish.js"
+  ],
+  "opts": {
+    "destination": "./docs",
+    "readme": "./docs/autodoc/index.md",
+    "recurse": true,
+    "template": "node_modules/minami",
+    "tutorials": "./docs/autodoc/tutorials"
+  },
+  "templates": {
+    "default": {
+      "includeDate": false
+    }
+  },
+  "markdown": {
+    "parser": "gfm",
+    "hardwrap": false,
+    "idInHeadings": true
+  }
+}
