@@ -2,6 +2,7 @@
 let { app, BrowserWindow, dialog, ipcMain, session } = require("electron");
 let path = require("path");
 let { performance } = require("perf_hooks");
+global.pngjs = require("pngjs");
 
 //Metadata - Title
 let latest_fps = 0;

@@ -38,6 +38,7 @@
   },
   "dependencies": {
     "monaco-editor": "^0.55.1",
+    "pngjs": "^7.0.0",
     "shell": "^0.12.0"
   }
 }

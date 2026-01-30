@@ -133,6 +133,34 @@
 		.toLowerCase()}`;
 	};
 	
+	Colour.decodeRGBAAsNumber = function (arg0_rgba) {
+		//Convert from parameters
+		let rgba = arg0_rgba;
+		
+		//Declare local instance variables
+		let r = rgba[0];
+		let g = rgba[1];
+		let b = rgba[2];
+		let a = rgba[3];
+		
+		//Return statement (rebuild 32-bit integer)
+		return ((r << 24) | (g << 16) | (b << 8) | a) >>> 0;
+	};
+	
+	Colour.encodeNumberAsRGBA = function (arg0_number) {
+		//Convert from parameters
+		let number = Math.returnSafeNumber(Math.round(arg0_number));
+		
+		//Declare local instance variables
+		let r = (number >> 24) & 0xFF; //Extract highest 8 bits
+		let g = (number >> 16) & 0xFF; //Extract next 8 bits
+		let b = (number >> 8) & 0xFF;  //Extract next 8 bits
+		let a = number & 0xFF;         //Extract lowest 8 bits
+		
+		//Return statement
+		return [r, g, b, a];
+	};
+	
 	Colour.randomHex = function () {
 		//Return statement
 		return Colour.convertRGBToHex(Colour.randomRGB());
