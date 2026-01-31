@@ -1,6 +1,6 @@
 //Initialise functions
 {
-	if (!global.PNG) global.PNG = {};
+	if (!global.GeoPNG) global.GeoPNG = {};
 	
 	/**
 	 * Fetches the total sum of all int values within an image.
@@ -8,13 +8,13 @@
 	 *
 	 * @returns {number}
 	 */
-	PNG.getImageSum = function (arg0_file_path) {
+	GeoPNG.getImageSum = function (arg0_file_path) {
 		//Convert from parameters
 		let file_path = arg0_file_path;
 		
 		//Declare local instance variables
 		let image = (typeof file_path == "string") ?
-			PNG.loadNumberRasterImage(file_path) : file_path;
+			GeoPNG.loadNumberRasterImage(file_path) : file_path;
 		let total_sum = 0;
 		
 		//Iterate over image
@@ -32,9 +32,10 @@
 	 *
 	 * @returns {[number, number, number, number]}
 	 */
-	PNG.getRGBAFromPixel = function (arg0_image_object, arg1_index) {
+	GeoPNG.getRGBAFromPixel = function (arg0_image_object, arg1_index) {
 		//Convert from parameters
-		let image_obj = (typeof arg0_image_object != "string") ? arg0_image_object : PNG.loadNumberRasterImage(arg0_image_object);
+		let image_obj = (typeof arg0_image_object != "string") ? 
+			arg0_image_object : GeoPNG.loadNumberRasterImage(arg0_image_object);
 		let index = arg1_index*4;
 		
 		//Return RGBA
@@ -52,7 +53,7 @@
 	 *
 	 * @returns {Object}
 	 */
-	PNG.loadImage = function (arg0_file_path) {
+	GeoPNG.loadImage = function (arg0_file_path) {
 		//Convert from parameters
 		let file_path = arg0_file_path;
 		
@@ -67,13 +68,13 @@
 	 *
 	 * @returns {number}
 	 */
-	PNG.loadNumberFromPixel = function (arg0_image_object, arg1_index) {
+	GeoPNG.loadNumberFromPixel = function (arg0_image_object, arg1_index) {
 		//Convert from parameters
-		let image_obj = (typeof arg0_image_object != "string") ? arg0_image_object : PNG.loadNumberRasterImage(arg0_image_object);
+		let image_obj = (typeof arg0_image_object != "string") ? arg0_image_object : GeoPNG.loadNumberRasterImage(arg0_image_object);
 		let index = arg1_index;
 		
 		//Return statement
-		return Colour.decodeRGBAAsNumber(PNG.getRGBAFromPixel(image_obj, index));
+		return Colour.decodeRGBAAsNumber(GeoPNG.getRGBAFromPixel(image_obj, index));
 	};
 	
 	/**
@@ -82,7 +83,7 @@
 	 *
 	 * @returns {width: number, height: number, data: number[]}
 	 */
-	PNG.loadNumberRasterImage = function (arg0_file_path) {
+	GeoPNG.loadNumberRasterImage = function (arg0_file_path) {
 		//Convert from parameters
 		let file_path = arg0_file_path;
 		
@@ -118,7 +119,7 @@
 	 *  @param {String} [arg0_options.file_path] - The file path to save the image to.
 	 *  @param {Function} [arg0_options.function] - (arg0_index, arg1_number)
 	 */
-	PNG.operateNumberRasterImage = function (arg0_options) {
+	GeoPNG.operateNumberRasterImage = function (arg0_options) {
 		//Convert from parameters
 		let options = (arg0_options) ? arg0_options : {};
 		
@@ -138,7 +139,7 @@
 	 *  @param {Number} [arg0_options.height=1] - The height of the image to save.
 	 *  @param {Function} [arg0_options.function] - (arg0_index) - The function to apply to each pixel. Must return a number. [0, 0, 0, 0] if undefined.
 	 */
-	PNG.saveNumberRasterImage = function (arg0_options) {
+	GeoPNG.saveNumberRasterImage = function (arg0_options) {
 		//Convert from parameters
 		let options = (arg0_options) ? arg0_options : {};
 		
@@ -158,7 +159,7 @@
 			for (let x = 0; x < options.width; x++) {
 				let local_index = (i*options.width + x); //RGBA index to be multiplied by 4
 				
-				PNG.saveNumberToPixel(png, local_index, options.function(local_index));
+				GeoPNG.saveNumberToPixel(png, local_index, options.function(local_index));
 			}
 		
 		//Write PNG file
@@ -179,18 +180,18 @@
 	 *
 	 * @returns {Object}
 	 */
-	PNG.savePercentageRasterImage = function (arg0_input_file_path, arg1_output_file_path) {
+	GeoPNG.savePercentageRasterImage = function (arg0_input_file_path, arg1_output_file_path) {
 		//Convert from parameters
 		let input_file_path = arg0_input_file_path;
 		let output_file_path = arg1_output_file_path;
 		
 		//Declare local instance variables
-		let input_image_obj = PNG.loadNumberRasterImage(input_file_path);
+		let input_image_obj = GeoPNG.loadNumberRasterImage(input_file_path);
 		let max_index = -1;
 		let max_value = 0;
 		
 		//1. Fetch max_value
-		PNG.operateNumberRasterImage({
+		GeoPNG.operateNumberRasterImage({
 			file_path: input_file_path,
 			width: input_image_obj.width,
 			height: input_image_obj.height,
@@ -247,10 +248,10 @@
 	 *
 	 * @returns {[number, number, number, number]}
 	 */
-	PNG.saveNumberToPixel = function (arg0_image_object, arg1_index, arg2_number) {
+	GeoPNG.saveNumberToPixel = function (arg0_image_object, arg1_index, arg2_number) {
 		//Convert from parameters
 		let image_obj = (typeof arg0_image_object != "string") ? 
-			arg0_image_object : PNG.loadNumberRasterImage(arg0_image_object);
+			arg0_image_object : GeoPNG.loadNumberRasterImage(arg0_image_object);
 		let index = arg1_index*4;
 		let number = arg2_number;
 		
