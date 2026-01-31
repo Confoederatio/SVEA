@@ -8,6 +8,7 @@ if (!global.Class)
 
 /**
  * Generates a random ID given the values in the `.instances` Array.
+ * @alias Class.generateRandomID
  * 
  * @param {Class} arg0_class
  * 
