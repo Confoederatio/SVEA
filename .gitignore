@@ -3,7 +3,10 @@ UF/archives
 settings
 .ve-sm
 
-core/1.data_scraping
+# Handle CDS
+core/1.data_scraping/**/*
+!core/1.data_scraping/**/
+!core/1.data_scraping/**/*.js
 
 # Logs
 logs

@@ -109,7 +109,7 @@
 			let local_line = raw_data[i].trim();
 			
 			//Internal guard clause; skip empty lines
-			if (local_line == "") continue;
+			if (local_line === "") continue;
 			
 			//Header parsing
 			if (is_header) {
@@ -141,7 +141,7 @@
 			let local_values = local_line.split(/\s+/);
 			
 			for (let x = 0; x < data_columns; x++)
-				data_frame[row_index][x] = (local_values[x] == no_data_value) ?
+				data_frame[row_index][x] = (local_values[x] === no_data_value) ?
 					undefined : parseFloat(local_values[x]);
 			
 			row_index++;

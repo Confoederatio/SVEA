@@ -1,7 +1,7 @@
 //Import modules
 global.child_process = require("child_process");
 global.electron = require("electron");
-global.GeoTIFF = require("geotiff")
+global.geotiff = require("geotiff")
 global.fs = require("fs");
 global.path = require("path");
 global.pngjs = require("pngjs");
