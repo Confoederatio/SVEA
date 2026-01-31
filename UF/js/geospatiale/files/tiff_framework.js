@@ -95,10 +95,10 @@
 		let output_pngs = [];
 		
 		//Iterate over every band in the GeoTIFF (each band represents a year)
-		for (let b = 0; b < raster.length; b++) {
-			let current_year = (options.years?.[b]) ? options.years[b] : b;
+		for (let i = 0; i < raster.length; i++) {
+			let current_year = (options.years?.[i]) ? options.years[i] : i;
 			let current_output_path = `${output_base_path}_${current_year}.png`;
-			let original_data = raster[b];
+			let original_data = raster[i];
 			
 			let png = new pngjs.PNG({
 				height: image_height,
@@ -110,9 +110,9 @@
 			});
 			
 			//Iterate over all pixels and encode it as RGBA
-			for (let i = 0; i < image_height; i++)
-				for (let x = 0; x < image_width; x++) {
-					let local_index = i*image_width + x;
+			for (let x = 0; x < image_height; x++)
+				for (let y = 0; y < image_width; y++) {
+					let local_index = x*image_width + y;
 					let local_value = original_data[local_index];
 					
 					//Multiply local_value by scalar
