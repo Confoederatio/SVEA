@@ -16,6 +16,7 @@
 	 * @param {string} arg1_output_file_path
 	 * @param {Object} [arg2_options]
 	 *  @param {string} [options.mode="number"] - Either 'number'/'percentage'.
+	 *  @param {function(local_index, local_value)} [options.special_function] - Any function to pass to the iterative loop when processing. Must return a {@link number}.
 	 *  
 	 * @returns {{dataframe: Object, max_value: number}}
 	 */
@@ -49,6 +50,9 @@
 				let local_index = (i*image_columns + x)*4; //RGBA index
 				let local_value = asc_dataframe[i][x];
 				let rgba;
+				
+				if (options.special_function)
+					local_value = options.special_function(local_index, local_value);
 				
 				if (local_value !== undefined && local_value !== -9999) {
 					if (options.mode === "number") {
