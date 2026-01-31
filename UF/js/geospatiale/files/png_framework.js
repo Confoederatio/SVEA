@@ -1,6 +1,12 @@
 //Initialise functions
 {
-	if (!global.GeoPNG) global.GeoPNG = {};
+	if (!global.GeoPNG)
+		/**
+		 * Analogous to a GeoTIFF file format, but in PNG form for easier editing. Single variable. Part of Geospatiale III.
+		 * 
+		 * @namespace GeoPNG
+		 */
+		global.GeoPNG = {};
 	
 	/**
 	 * Fetches the total sum of all int values within an image.
@@ -30,7 +36,7 @@
 	 * @param {Object} arg0_image_object
 	 * @param {number} arg1_index
 	 *
-	 * @returns {[number, number, number, number]}
+	 * @returns {number[]}
 	 */
 	GeoPNG.getRGBAFromPixel = function (arg0_image_object, arg1_index) {
 		//Convert from parameters
@@ -246,7 +252,7 @@
 	 * @param {number} arg1_index - The index of the pixel to save the number to.
 	 * @param {number} arg2_number - The number to save to the pixel.
 	 *
-	 * @returns {[number, number, number, number]}
+	 * @returns {number[]}
 	 */
 	GeoPNG.saveNumberToPixel = function (arg0_image_object, arg1_index, arg2_number) {
 		//Convert from parameters

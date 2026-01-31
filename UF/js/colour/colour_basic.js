@@ -14,7 +14,7 @@
 	 * 
 	 * @param {number} arg0_hex_component
 	 * 
-	 * @returns {string|string}
+	 * @returns {string}
 	 */
 	Colour.componentToHex = function (arg0_hex_component) {
 		//Convert from parameters
@@ -128,6 +128,7 @@
 	 * @alias Colour.convertRGBToHex
 	 *
 	 * @param {number[]|string} arg0_rgb
+	 * 
 	 * @returns {string}
 	 */
 	Colour.convertRGBToHex = function (arg0_rgb) {
@@ -182,8 +183,8 @@
 	 * Calculates the deltaE between two RGB values.
 	 * @alias Colour.deltaE
 	 * 
-	 * @param {[number, number, number]} arg0_rgb
-	 * @param {[number, number, number]} arg1_rgb
+	 * @param {number[]} arg0_rgb
+	 * @param {number[]} arg1_rgb
 	 * 
 	 * @returns {number}
 	 */
@@ -217,7 +218,7 @@
 	 * @alias Colour.encodeNumberAsRGBA
 	 * 
 	 * @param {number} arg0_number
-	 * @returns {[number, number, number, number]}
+	 * @returns {number[]}
 	 */
 	Colour.encodeNumberAsRGBA = function (arg0_number) {
 		//Convert from parameters
@@ -248,7 +249,7 @@
 	 * Returns a random RGB colour.
 	 * @alias Colour.randomRGBA
 	 * 
-	 * @returns {[number, number, number]}
+	 * @returns {number[]}
 	 */
 	Colour.randomRGB = function () {
 		//Return statement
@@ -262,7 +263,7 @@
 	/**
 	 * Returns a random RGBA colour.
 	 * 
-	 * @returns {[number, number, number, number]}
+	 * @returns {number[]}
 	 */
 	Colour.randomRGBA = function () {
 		return [
@@ -277,9 +278,9 @@
 	 * Converts an RGB value to Lab distance.
 	 * @alias Colour.RGBToLab
 	 * 
-	 * @param {[number, number, number]} arg0_rgb
+	 * @param {number[]} arg0_rgb
 	 * 
-	 * @returns {[number, number, number]}
+	 * @returns {number[]}
 	 */
 	Colour.RGBToLab = function (arg0_rgb) {
 		//Convert from parameters
