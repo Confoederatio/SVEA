@@ -8,12 +8,59 @@ global.pngjs = require("pngjs");
 
 //Initialise functions
 {
-  function initialiseGlobal () {
-    //Declare global variables
-    window.main = {
-      hierarchies: {}
+  global.initialiseGlobal = function () {
+    //KEEP AT TOP! Make sure file paths exist
+    {
+      if (!fs.existsSync("./saves/")) fs.mkdirSync("./saves/");
+    }
+    
+    global.scene = new ve.Scene({
+      map_component: new ve.Map()
+    });
+      global.map = global.scene.map_component.map;
+    
+    //Declare local instance variables
+    global.main = {
+      date: Date.getCurrentDate(),
+      interfaces: {
+        //Topbar
+        date_ui: new UI_DateMenu(),
+        
+        //Scene Interfaces
+        mapmodes: new UI_Mapmodes()
+      },
+      layers: {
+        entity_layer: new maptalks.VectorLayer("entity_layer", [], {
+          hitDetect: true,
+          interactive: true,
+          zIndex: 1
+        })
+      },
+      map: map,
+      user: {}
     };
-  }
+    
+    //1.1. Append all layers to map
+    Object.iterate(main.layers, (local_key, local_value) => local_value.addTo(map));
+    
+    //1.2. Add event handlers to map
+    //mousedown
+    let mousedown_dictionary = ["left_click", "middle_click", "right_click"];
+    map.on("mousedown", (e) => {
+      for (let i = 0; i < mousedown_dictionary.length; i++)
+        delete HTML[mousedown_dictionary[i]];
+      HTML[mousedown_dictionary[e.domEvent.which - 1]] = true;
+    });
+    
+    //mouseup
+    map.on("mouseup", (e) => {
+      for (let i = 0; i < mousedown_dictionary.length; i++)
+        delete HTML[mousedown_dictionary[i]];
+    });
+    
+    //1.3. Initialise Mapmodes
+    main.mapmodes = main.interfaces.mapmodes;
+  };
 
   function trackPerformance () {
     //Declare local instance variables
@@ -51,10 +98,13 @@ global.pngjs = require("pngjs");
       "core"
     ],
     special_function: function () {
-      initialiseVercengenWindowsDemo();
+      try {
+        initialiseGlobal();
+      } catch (e) {
+        console.error(e);
+      }
     }
   });
-
-  initialiseGlobal();
+  
   trackPerformance();
 }
