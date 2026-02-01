@@ -3,6 +3,7 @@ global.child_process = require("child_process");
 global.electron = require("electron");
 global.geotiff = require("geotiff")
 global.fs = require("fs");
+global.node_fs_promises = require("node:fs/promises");
 global.path = require("path");
 global.pngjs = require("pngjs");
 global.util = require("util");

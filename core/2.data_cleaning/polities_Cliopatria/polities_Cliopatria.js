@@ -1,16 +1,69 @@
 global.polities_Cliopatria = class {
-	static input_path_anaconda = "./core/2.data_cleaning/polities_Cliopatria/anaconda.bat";
-	static input_path_equirectangular = "./core/2.data_cleaning/polities_Cliopatria/rasters_equirectangular/";
-	static input_path_rasters = "./core/1.data_scraping/polities_Cliopatria/original_map_images/";
+	static input_path_anaconda_activate = "C:\\Users\\htmlp\\anaconda3\\Scripts\\activate.bat";
+	static input_path_conda_home = "C:\\Users\\htmlp\\anaconda3";
+	static input_rasters_robinson = "./core/1.data_scraping/polities_Cliopatria/original_map_images/";
+	static intermediate_rasters_equirectangular = "./core/2.data_cleaning/polities_Cliopatria/rasters_equirectangular/";
 	
-	static async convertRobinsonToEquirectangular (arg0_options) { //[QUARANTINE]
+	static A_getAllRobinsonRasters () {
+		//Declare local instance variables
+		let all_files = File.getAllFilesSync(this.input_rasters_robinson);
+		
+		//Iterate over all_files in reverse and remove anything that does not start with a capital B/C and end in .PNG
+		for (let i = all_files.length - 1; i >= 0; i--) {
+			if (path.extname(all_files[i]) !== ".PNG") { //Internal guard clause if it doesn't end in .PNG
+				all_files.splice(i, 1);
+				continue;
+			}
+			
+			let local_file = path.basename(all_files[i]); //B/C handler
+			if (!(local_file.startsWith("B") || local_file.startsWith("C")))
+				all_files.splice(i, 1);
+		}
+		
+		//Return statement
+		return all_files;
+	}
+	
+	static async A_normaliseRobinson (arg0_options) {
+		//Convert from parameters
+		let options = (arg0_options) ? arg0_options : {};
+		
+		//Initialise options
+		options.concurrency_limit = Math.returnSafeNumber(options.concurrency_limit, 16);
+		
+		//Declare local instance variables
+		let all_rasters = this.A_getAllRobinsonRasters();
+		let expanded_rasters = [];
+		
+		//Iterate over all_rasters and chunk them
+		for (let i = 0; i < all_rasters.length; i += options.concurrency_limit) {
+			let chunk = all_rasters.slice(i, i + options.concurrency_limit);
+			
+			let chunk_promises = chunk.map(async (local_raster) => {
+				let output_raster = `${local_raster.replace(".PNG", "")}_expanded.png`;
+				
+				try {
+					await exec(`magick "${local_raster}" -background none -splice 160x0 "${output_raster}"`);
+					expanded_rasters.push(output_raster);
+					
+					console.log(`Finished expanding ${local_raster} to Standard Robinson.`);
+				} catch (e) {
+					console.error(e);
+				}
+			});
+			await Promise.all(chunk_promises);
+		}
+		
+		//Return statement
+		return expanded_rasters;
+	}
+	
+	static async B_convertRobinsonToEquirectangular (arg0_options) { //[QUARANTINE]
 		let options = arg0_options || {};
-		let all_rasters = polities_Cliopatria.getAllExpandedRasters();
+		let all_rasters = polities_Cliopatria.B_getAllNormalisedRobinsonRasters();
 		let all_output_rasters = [];
 		
 		// Point directly to the source to bypass your /K wrapper
-		const activateScript = 'C:\\Users\\htmlp\\anaconda3\\Scripts\\activate.bat';
-		const condaHome = 'C:\\Users\\htmlp\\anaconda3';
 		const tempBatDir = path.resolve(process.cwd(), 'temp_jobs');
 		
 		if (!fs.existsSync(tempBatDir)) {
@@ -41,7 +94,7 @@ global.polities_Cliopatria = class {
 			// The Batch File: We use the single-line cmd /C logic you confirmed works
 			const batContent = [
 				`@echo off`,
-				`cmd /C "call "${activateScript}" "${condaHome}" && ${gdal_chain}"`,
+				`cmd /C "call "${this.input_path_anaconda_activate}" "${this.input_path_conda_home}" && ${gdal_chain}"`,
 			].join('\r\n');
 			
 			const batFilePath = path.join(tempBatDir, `job_${i}.bat`);
@@ -74,9 +127,9 @@ global.polities_Cliopatria = class {
 		return all_output_rasters;
 	}
 	
-	static getAllExpandedRasters () {
+	static B_getAllNormalisedRobinsonRasters () {
 		//Declare local instance variables
-		let all_files = File.getAllFilesSync(polities_Cliopatria.input_path_rasters);
+		let all_files = File.getAllFilesSync(this.input_rasters_robinson);
 		
 		//Iterate over all_files in reverse and remove anything that does not end with _expanded.png
 		for (let i = all_files.length - 1; i >= 0; i--)
@@ -87,32 +140,27 @@ global.polities_Cliopatria = class {
 		return all_files;
 	}
 	
-	static getAllRasters () {
+	static async C_deleteAuxXMLFiles () {
 		//Declare local instance variables
-		let all_files = File.getAllFilesSync(polities_Cliopatria.input_path_rasters);
+		let all_files = File.getAllFilesSync(this.intermediate_rasters_equirectangular);
+		let delete_file_paths = [];
 		
-		//Iterate over all_files in reverse and remove anything that does not start with a capital B/C and end in .PNG
-		for (let i = all_files.length - 1; i >= 0; i--) {
-			if (path.extname(all_files[i]) !== ".PNG") { //Internal guard clause if it doesn't end in .PNG
-				all_files.splice(i, 1);
-				continue;
-			}
-			
-			let local_file = path.basename(all_files[i]); //B/C handler
-			if (!(local_file.startsWith("B") || local_file.startsWith("C")))
-				all_files.splice(i, 1);
-		}
+		//Iterate over all_files and detect .png.aux.xml extensions
+		for (let i = 0; i < all_files.length; i++)
+			if (path.basename(all_files[i]).endsWith(".png.aux.xml"))
+				delete_file_paths.push(all_files[i]);
 		
-		//Return statement
-		return all_files;
+		let results = await Promise.allSettled(
+			delete_file_paths.map((local_path) => node_fs_promises.unlink(local_path)));
+		results.forEach((local_result, local_index) => {
+			if (local_result.status === "rejected")
+				if (local_result.reason.code !== "ENOENT")
+					console.error(`Failed to delete ${delete_file_paths[local_index]}:`, local_result.reason.message);
+		});
 	}
 	
 	//[WIP] - Finish function body
-	static async normaliseEquirectangular (arg0_options) {
-		
-	}
-	
-	static async normaliseRobinson (arg0_options) {
+	static async D_normaliseEquirectangular (arg0_options) {
 		//Convert from parameters
 		let options = (arg0_options) ? arg0_options : {};
 		
@@ -120,38 +168,41 @@ global.polities_Cliopatria = class {
 		options.concurrency_limit = Math.returnSafeNumber(options.concurrency_limit, 16);
 		
 		//Declare local instance variables
-		let all_rasters = polities_Cliopatria.getAllRasters();
+		let all_files = File.getAllFilesSync(this.intermediate_rasters_equirectangular);
+		let equirectangular_rasters = [];
 		
-		let all_expanded_rasters = [];
-		//let all_output_rasters = [];
+		//Iterate over all_files and append them to equirectangular_rasters if valid
+		for (let i = 0; i < all_files.length; i++) {
+			let local_basename = path.basename(all_files[i]);
+			
+			if (local_basename.endsWith(".png") && !isNaN(parseInt(local_basename.replace(".png", ""))))
+				equirectangular_rasters.push(all_files[i]);
+		}
 		
-		//Iterate over all_rasters and chunk them
-		for (let i = 0; i < all_rasters.length; i += options.concurrency_limit) {
-			let chunk = all_rasters.slice(i, i + options.concurrency_limit);
+		//Iterate over equirectangular_rasters and chunk them
+		for (let i = 0; i < equirectangular_rasters.length; i += options.concurrency_limit) {
+			let chunk = equirectangular_rasters.slice(i, i + options.concurrency_limit);
 			
 			let chunk_promises = chunk.map(async (local_raster) => {
-				let output_raster = `${local_raster.replace(".PNG", "")}_expanded.png`;
-				
 				try {
-					await exec(`magick "${local_raster}" -background none -splice 160x0 "${output_raster}"`);
-					all_expanded_rasters.push(output_raster);
-					
-					console.log(`Finished expanding ${local_raster} to Standard Robinson.`);
+					await exec(`magick "${local_raster}" -roll +126+0 "${local_raster}"`);
+					console.log(`Finished normalising ${local_raster} to Equirectangular.`);
 				} catch (e) {
 					console.error(e);
 				}
 			});
 			await Promise.all(chunk_promises);
 		}
-		
-		//Return statement
-		return all_expanded_rasters;
 	}
 	
 	static async processRasters () {
 		//1. Normalise base rasters' Robinson projection
-		await polities_Cliopatria.normaliseRobinson();
+		await this.A_normaliseRobinson();
 		//2. Convert Robinson > Equirectangular using Anaconda/GDAL
-		await polities_Cliopatria.convertRobinsonToEquirectangular();
+		await this.B_convertRobinsonToEquirectangular();
+		//3. Delete excess files
+		await this.C_deleteAuxXMLFiles();
+		//4. Normalise Equirectangular
+		await this.D_normaliseEquirectangular();
 	}
 };
