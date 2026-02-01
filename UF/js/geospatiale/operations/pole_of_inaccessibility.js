@@ -4,7 +4,7 @@
 		global.Geospatiale = {};
 	
 	/**
-	 * Finds the pole of inaccessibility for a GeoJSON feature.
+	 * Finds the pole of inaccessibility for a GeoJSON feature. Depends on `npm polylabel`.
 	 * 
 	 * @param {Object} arg0_feature
 	 * @param {number} [arg1_precision=0.0001]
