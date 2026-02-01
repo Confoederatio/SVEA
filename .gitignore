@@ -7,6 +7,11 @@ settings
 core/1.data_scraping/**/*
 !core/1.data_scraping/**/
 !core/1.data_scraping/**/*.js
+core/2.data_cleaning/**/*
+!core/2.data_cleaning/**/
+!core/2.data_cleaning/**/*.js
+
+temp_jobs
 
 # Logs
 logs

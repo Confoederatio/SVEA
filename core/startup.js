@@ -5,6 +5,9 @@ global.geotiff = require("geotiff")
 global.fs = require("fs");
 global.path = require("path");
 global.pngjs = require("pngjs");
+global.util = require("util");
+
+global.exec = util.promisify(require("child_process").exec);
 
 //Initialise functions
 {
