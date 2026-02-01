@@ -3,65 +3,6 @@ global.polities_Cliopatria = class {
 	static input_path_equirectangular = "./core/2.data_cleaning/polities_Cliopatria/rasters_equirectangular/";
 	static input_path_rasters = "./core/1.data_scraping/polities_Cliopatria/original_map_images/";
 	
-	//1. Normalise Robinson
-	static getAllRasters () {
-		//Declare local instance variables
-		let all_files = File.getAllFilesSync(polities_Cliopatria.input_path_rasters);
-		
-		//Iterate over all_files in reverse and remove anything that does not start with a capital B/C and end in .PNG
-		for (let i = all_files.length - 1; i >= 0; i--) {
-			if (path.extname(all_files[i]) !== ".PNG") { //Internal guard clause if it doesn't end in .PNG
-				all_files.splice(i, 1);
-				continue;
-			}
-			
-			let local_file = path.basename(all_files[i]); //B/C handler
-			if (!(local_file.startsWith("B") || local_file.startsWith("C")))
-				all_files.splice(i, 1);
-		}
-		
-		//Return statement
-		return all_files;
-	}
-	
-	static async normaliseRobinson (arg0_options) {
-		//Convert from parameters
-		let options = (arg0_options) ? arg0_options : {};
-		
-		//Initialise options
-		options.concurrency_limit = Math.returnSafeNumber(options.concurrency_limit, 16);
-		
-		//Declare local instance variables
-		let all_rasters = polities_Cliopatria.getAllRasters();
-		
-		let all_expanded_rasters = [];
-		//let all_output_rasters = [];
-		
-		//Iterate over all_rasters and chunk them
-		for (let i = 0; i < all_rasters.length; i += options.concurrency_limit) {
-			let chunk = all_rasters.slice(i, i + options.concurrency_limit);
-			
-			let chunk_promises = chunk.map(async (local_raster) => {
-				let output_raster = `${local_raster.replace(".PNG", "")}_expanded.png`;
-				
-				try {
-					await exec(`magick "${local_raster}" -background none -splice 160x0 "${output_raster}"`);
-					all_expanded_rasters.push(output_raster);
-					
-					console.log(`Finished expanding ${local_raster} to Standard Robinson.`);
-				} catch (e) {
-					console.error(e);
-				}
-			});
-			await Promise.all(chunk_promises);
-		}
-		
-		//Return statement
-		return all_expanded_rasters;
-	}
-	
-	//2. Convert Normalised Robinson > Equirectangular
-	
 	static async convertRobinsonToEquirectangular (arg0_options) { //[QUARANTINE]
 		let options = arg0_options || {};
 		let all_rasters = polities_Cliopatria.getAllExpandedRasters();
@@ -144,5 +85,73 @@ global.polities_Cliopatria = class {
 		
 		//Return statement
 		return all_files;
+	}
+	
+	static getAllRasters () {
+		//Declare local instance variables
+		let all_files = File.getAllFilesSync(polities_Cliopatria.input_path_rasters);
+		
+		//Iterate over all_files in reverse and remove anything that does not start with a capital B/C and end in .PNG
+		for (let i = all_files.length - 1; i >= 0; i--) {
+			if (path.extname(all_files[i]) !== ".PNG") { //Internal guard clause if it doesn't end in .PNG
+				all_files.splice(i, 1);
+				continue;
+			}
+			
+			let local_file = path.basename(all_files[i]); //B/C handler
+			if (!(local_file.startsWith("B") || local_file.startsWith("C")))
+				all_files.splice(i, 1);
+		}
+		
+		//Return statement
+		return all_files;
+	}
+	
+	//[WIP] - Finish function body
+	static async normaliseEquirectangular (arg0_options) {
+		
+	}
+	
+	static async normaliseRobinson (arg0_options) {
+		//Convert from parameters
+		let options = (arg0_options) ? arg0_options : {};
+		
+		//Initialise options
+		options.concurrency_limit = Math.returnSafeNumber(options.concurrency_limit, 16);
+		
+		//Declare local instance variables
+		let all_rasters = polities_Cliopatria.getAllRasters();
+		
+		let all_expanded_rasters = [];
+		//let all_output_rasters = [];
+		
+		//Iterate over all_rasters and chunk them
+		for (let i = 0; i < all_rasters.length; i += options.concurrency_limit) {
+			let chunk = all_rasters.slice(i, i + options.concurrency_limit);
+			
+			let chunk_promises = chunk.map(async (local_raster) => {
+				let output_raster = `${local_raster.replace(".PNG", "")}_expanded.png`;
+				
+				try {
+					await exec(`magick "${local_raster}" -background none -splice 160x0 "${output_raster}"`);
+					all_expanded_rasters.push(output_raster);
+					
+					console.log(`Finished expanding ${local_raster} to Standard Robinson.`);
+				} catch (e) {
+					console.error(e);
+				}
+			});
+			await Promise.all(chunk_promises);
+		}
+		
+		//Return statement
+		return all_expanded_rasters;
+	}
+	
+	static async processRasters () {
+		//1. Normalise base rasters' Robinson projection
+		await polities_Cliopatria.normaliseRobinson();
+		//2. Convert Robinson > Equirectangular using Anaconda/GDAL
+		await polities_Cliopatria.convertRobinsonToEquirectangular();
 	}
 };
