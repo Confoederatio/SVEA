@@ -83,8 +83,8 @@ global.polities_Cliopatria = class {
 			let t1 = path.resolve(process.cwd(), `${output_name.replace('.png', '')}_t1.tif`);
 			let t2 = path.resolve(process.cwd(), `${output_name}_t2.tif`);
 			
-			// The GDAL Chain
-			const gdal_chain = [
+			//GDAL chain
+			let gdal_chain = [
 				`gdal_translate -a_srs "ESRI:54030" -a_ullr -17035872.77 8542325 17035872.77 -7944003 "${local_raster}" "${t1}"`,
 				`gdalwarp -t_srs "EPSG:4326" -te -180 -90 180 90 -tr 0.083333333333333 0.083333333333333 -r near -wo SOURCE_EXTRA=1000 -wo SAMPLE_STEPS=1000 "${t1}" "${t2}"`,
 				`gdal_translate -of PNG "${t2}" "${output_raster}"`,
@@ -159,7 +159,6 @@ global.polities_Cliopatria = class {
 		});
 	}
 	
-	//[WIP] - Finish function body
 	static async D_normaliseEquirectangular (arg0_options) {
 		//Convert from parameters
 		let options = (arg0_options) ? arg0_options : {};
@@ -193,6 +192,18 @@ global.polities_Cliopatria = class {
 			});
 			await Promise.all(chunk_promises);
 		}
+	}
+	
+	static async E_renderYear (arg0_year) {
+		//Convert from parameters
+		let year = parseInt(arg0_year);
+		
+		await GeoPNG.kNNBin(`./core/2.data_cleaning/polities_Cliopatria/rasters_equirectangular/${year}.png`, `./core/2.data_cleaning/polities_Cliopatria/rasters_colourmap/${year}.png`, {
+			bin_colours: [[5, 7, 8, 255], [2, 4, 1, 255], [0, 0, 0, 255], [0, 0, 255, 255], [255, 0, 0, 255], [2, 5, 4, 255], [5, 7, 2, 255], [2, 4, 6, 255]],
+			ignore_colours: [[182, 220, 244, 255],  [217, 237, 249, 255]]
+		});
+		await GeoPNG.convertToGeoJSON(`./core/2.data_cleaning/polities_Cliopatria/rasters_colourmap/${year}.png`, `./core/2.data_cleaning/polities_Cliopatria/geojson_equirectangular/${year}.geojson`, { ignore_colours: [[0, 0, 0, 0], [182, 220, 244, 255], [216, 217, 218, 255], [217, 237, 249, 255], [144, 58, 0, 255], [255, 255, 219, 255], [0, 102, 182, 255], [0, 0, 102, 255], [182, 255, 255, 255], [58, 58, 58, 255], [0, 58, 144, 255], [219, 255, 255, 255], [219, 144, 58, 255], [58, 144, 219, 255], [182, 102, 0, 255], [255, 255, 182, 255], [102, 0, 0, 255], [102, 182, 255, 255], [0, 0, 58, 255], [144, 219, 255, 255], [255, 182, 102, 255], [255, 219, 144, 255], [0, 102, 144, 255], [58, 0, 0, 255], [255, 182, 144, 255], [144, 144, 102, 255], [219, 255, 182, 255], [144, 219, 182, 255] ] });
+		main.mapmodes.mapmodes.geojson.draw(`./core/2.data_cleaning/polities_Cliopatria/geojson_equirectangular/${year}.geojson`)
 	}
 	
 	static async processRasters () {

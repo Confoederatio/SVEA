@@ -33,6 +33,12 @@ global.UI_Mapmodes = class extends ve.Class {
 						name: "<icon>landscape</icon><span style = 'display: none;'>Default</span>",
 						tooltip: "Default"
 					}),
+					geojson: new ve.Button(() => {
+						this.setMapmode("geojson");
+					}, {
+						name: "<icon>folder</icon><span style = 'display: none;'>GeoJSON</span>",
+						tooltip: "GeoJSON"
+					}),
 					polities_Cliopatria_UI: veButton(() => {
 						this.setMapmode("polities_Cliopatria_UI");
 					}, {
@@ -111,6 +117,10 @@ global.UI_Mapmodes = class extends ve.Class {
 	static getAllMapmodes () {
 		//Return statement
 		return {
+			//Exterior Visualisations
+			geojson: new Mapmode_GeoJSON(),
+			
+			//Datasets
 			polities_Cliopatria_UI: new polities_Cliopatria_UI()
 		};
 	};

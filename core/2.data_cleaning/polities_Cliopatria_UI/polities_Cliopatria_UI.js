@@ -8,6 +8,7 @@ global.polities_Cliopatria_UI = class {
 		//Declare local instance variables
 		this.geojson_obj = JSON.parse(fs.readFileSync(polities_Cliopatria_UI.input_path, "utf8"));
 		this.geometries = [];
+		this.is_dataset = true;
 	}
 	
 	clear () {
