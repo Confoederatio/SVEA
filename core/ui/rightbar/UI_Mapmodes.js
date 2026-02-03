@@ -11,7 +11,7 @@ global.UI_Mapmodes = class extends ve.Class {
 					attributes: {
 						"data-default": true
 					},
-					name: "<icon>flag</icon><span style = 'display: none;'>Default</span>",
+					name: "<icon>landscape</icon><span style = 'display: none;'>Default</span>",
 					tooltip: "Default"
 				}),
 				default_keyframes: veButton(() => {
@@ -22,6 +22,12 @@ global.UI_Mapmodes = class extends ve.Class {
 					},
 					name: "<icon>flag_circle</icon><span style = 'display: none;'>Default Keyframes</span>",
 					tooltip: "Default Keyframes"
+				}),
+				cliopatria: veButton(() => {
+					this.mapmode = "cliopatria";
+				}, {
+					name: "<icon>flag</icon><span style = 'display: none;'>Cliopatria</span>",
+					tooltip: "Cliopatria"
 				})
 			}, {
 				header_components_obj: {
@@ -50,6 +56,9 @@ global.UI_Mapmodes = class extends ve.Class {
 				padding: 0
 			}
 		});
+		this.mapmodes = {
+			polities_Cliopatria_UI: new polities_Cliopatria_UI()
+		};
 		
 		//Open window
 		super.open("instance", {
@@ -60,5 +69,13 @@ global.UI_Mapmodes = class extends ve.Class {
 			x: 8,
 			y: () => main.brush.instance_window.element.offsetHeight + 16
 		});
+	}
+	
+	drawMapmode (arg0_date) {
+		//Convert from parameters
+		let date_obj = (arg0_date) ? arg0_date : main.date;
+		
+		if (this.mapmode === "cliopatria")
+			this.mapmodes.polities_Cliopatria_UI.draw(date_obj);
 	}
 };

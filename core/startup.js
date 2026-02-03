@@ -4,6 +4,13 @@ global.electron = require("electron");
 global.fs = require("fs");
 global.path = require("path");
 
+global.h1 = "./histmap/1.data_scraping/";
+global.h2 = "./histmap/2.data_cleaning/";
+global.h3 = "./histmap/3.data_merging/";
+global.h4 = "./histmap/4.data_processing/";
+global.h5 = "./histmap/5.data_post_processing/";
+global.h6 = "./histmap/6.data_visualisation/";
+
 //Initialise functions
 {
   global.initialiseGlobal = function () {
@@ -128,7 +135,9 @@ global.path = require("path");
 			"common",
 			"!core/startup.js",
 			"!core/archives",
-			"core"
+			"core",
+			"histmap",
+			"livemap"
 		],
 		special_function: function () {
 			try {

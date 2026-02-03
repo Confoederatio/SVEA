@@ -24,6 +24,7 @@ global.UI_DateMenu = class extends ve.Class {
 						{ type: "global", refresh_date: true }
 					]
 				});
+				main.interfaces.mapmodes_ui.drawMapmode();
 			}
 		});
 		
