@@ -227,10 +227,12 @@ global.polities_Cliopatria = class {
 	}
 	
 	//Experimental methods
-	static async Experimental_renderYear (arg0_year) {
+	static async Experimental_renderYear (arg0_year, arg1_options) {
 		//Convert from parameters
 		let year = parseInt(arg0_year);
+		let options = (arg1_options) ? arg1_options : {};
 		
+		//Set date; then process year
 		main.date = {
 			year: year,
 			month: 1,
@@ -238,11 +240,13 @@ global.polities_Cliopatria = class {
 			hour: 0,
 			minute: 0
 		}
-		await GeoPNG.kNNBin(`./core/2.data_cleaning/polities_Cliopatria/rasters_equirectangular/${year}.png`, `./core/2.data_cleaning/polities_Cliopatria/rasters_colourmap/${year}.png`, {
-			bin_colours: [[5, 7, 8, 255], [2, 4, 1, 255], [0, 0, 255, 255], [255, 0, 0, 255], [2, 5, 4, 255], [5, 7, 2, 255], [2, 4, 6, 255]],
-			ignore_colours: [[182, 220, 244, 255],  [217, 237, 249, 255]]
+		await GeoPNG.kNNBin(`${h2}polities_Cliopatria/rasters_equirectangular/${year}.png`, `${h2}polities_Cliopatria/rasters_colourmap/${year}.png`, {
+			bin_colours: [[5, 7, 8, 255], [2, 4, 1, 255], [0, 0, 255, 255], /*[255, 0, 0, 255],*/ [2, 5, 4, 255], [5, 7, 2, 255], [2, 4, 6, 255]],
+			ignore_colours: [[182, 220, 244, 255],  [217, 237, 249, 255], [0, 0, 0, 255]]
 		});
-		await GeoPNG.convertToGeoJSON(`./core/2.data_cleaning/polities_Cliopatria/rasters_colourmap/${year}.png`, `./core/2.data_cleaning/polities_Cliopatria/geojson_equirectangular/${year}.geojson`, { ignore_colours: [[0, 0, 0, 0], [182, 220, 244, 255], [216, 217, 218, 255], [217, 237, 249, 255], [144, 58, 0, 255], [255, 255, 219, 255], [0, 102, 182, 255], [0, 0, 102, 255], [182, 255, 255, 255], [58, 58, 58, 255], [0, 58, 144, 255], [219, 255, 255, 255], [219, 144, 58, 255], [58, 144, 219, 255], [182, 102, 0, 255], [255, 255, 182, 255], [102, 0, 0, 255], [102, 182, 255, 255], [0, 0, 58, 255], [144, 219, 255, 255], [255, 182, 102, 255], [255, 219, 144, 255], [0, 102, 144, 255], [58, 0, 0, 255], [255, 182, 144, 255], [144, 144, 102, 255], [219, 255, 182, 255], [144, 219, 182, 255] ] });
-		main.mapmodes.mapmodes.geojson.draw(`./core/2.data_cleaning/polities_Cliopatria/geojson_equirectangular/${year}.geojson`);
+		await GeoPNG.convertToGeoJSON(`${h2}polities_Cliopatria/rasters_colourmap/${year}.png`, `${h2}polities_Cliopatria/geojson_equirectangular/${year}.geojson`, { ignore_colours: [[0, 0, 0, 0], [182, 220, 244, 255], [216, 217, 218, 255], [217, 237, 249, 255], [144, 58, 0, 255], [255, 255, 219, 255], [0, 102, 182, 255], [0, 0, 102, 255], [182, 255, 255, 255], [58, 58, 58, 255], [0, 58, 144, 255], [219, 255, 255, 255], [219, 144, 58, 255], [58, 144, 219, 255], [182, 102, 0, 255], [255, 255, 182, 255], [102, 0, 0, 255], [102, 182, 255, 255], [0, 0, 58, 255], [144, 219, 255, 255], [255, 182, 102, 255], [255, 219, 144, 255], [0, 102, 144, 255], [58, 0, 0, 255], [255, 182, 144, 255], [144, 144, 102, 255], [219, 255, 182, 255], [144, 219, 182, 255] ] });
+		
+		if (!options.do_not_draw)
+			main.mapmodes.mapmodes.geojson.draw(`${h2}polities_Cliopatria/geojson_equirectangular/${year}.geojson`);
 	}
 };

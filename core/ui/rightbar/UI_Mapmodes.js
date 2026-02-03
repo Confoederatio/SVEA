@@ -50,13 +50,6 @@ global.UI_Mapmodes = class extends ve.Class {
 					}),
 				}, {
 					header_components_obj: {
-						add_new_mapmode: veButton(() => {
-							
-						}, {
-							name: "<icon>add_circle</icon>",
-							tooltip: "Add New Mapmode",
-							style: { marginLeft: "var(--cell-padding)" }
-						}),
 						mapmode_settings: veButton(() => {
 							
 						}, {
