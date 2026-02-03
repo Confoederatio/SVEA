@@ -28,7 +28,13 @@ h6 = "./histmap/6.data_visualisation/";
     }
     
     global.scene = new ve.Scene({
-      map_component: new ve.Map()
+      map_component: new ve.Map(undefined, {
+        base_layer_options: {
+          urlTemplate: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',
+          subdomains: ["a","b","c","d"],
+          repeatWorld: false
+        }
+      })
     });
       global.map = global.scene.map_component.map;
     
@@ -55,6 +61,12 @@ h6 = "./histmap/6.data_visualisation/";
     
     //1.1. Append all layers to map
     Object.iterate(main.layers, (local_key, local_value) => local_value.addTo(map));
+    map.addLayer(new maptalks.TileLayer("gmaps", {
+      opacity: 0.3,
+      urlTemplate: "https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}",
+      subdomains: ["a","b","c","d"],
+      repeatWorld: false
+    }));
     
     //1.2. Add event handlers to map
     //mousedown

@@ -22,6 +22,9 @@ global.polities_Cliopatria_UI = class {
 		//Convert from parameters
 		let date_obj = (arg0_date) ? arg0_date : Date.getCurrentDate();
 		
+		//Declare local instance variables
+		let label_geometries = [];
+		
 		//Clear map first
 		this.clear();
 		
@@ -33,16 +36,61 @@ global.polities_Cliopatria_UI = class {
 			if (local_feature_properties)
 				if (date_obj.year >= local_feature_properties.FromYear && date_obj.year <= local_feature_properties.ToYear) {
 					let local_geometry = new maptalks.GeoJSON.toGeometry(local_feature);
+					let local_properties = local_geometry.properties;
 					
-					if (local_geometry.properties)
+					if (local_geometry.properties) {
+						let local_fill_colour = local_properties.fill_colour;
+						
 						local_geometry.updateSymbol({
 							lineWidth: 1,
-							polygonFill: local_geometry.properties?.fill_colour,
+							polygonFill: `rgb(${local_fill_colour[0]},${local_fill_colour[1]},${local_fill_colour[2]})`,
 							polygonOpacity: 0.5
 						});
-					this.geometries.push(local_geometry);
+						local_geometry.addEventListener("click", (e) => {
+							
+							if (this.polity_window) this.polity_window.close();
+							this.polity_window = veWindow([
+								`<b>Components:</b> ${local_properties.Components}`,
+								`<b>Member of:</b> ${local_properties.MemberOf}`,
+								`<b>Geometry Domain:</b> ${local_properties.FromYear}-${local_properties.ToYear}`,
+								`<b>Type:</b> ${local_properties.Type}`,
+								`<b>Pole of Inaccessibility:</b> ${[
+									`Lat: ${Math.roundNumber(local_properties.poi[0], 2)}`, 
+									`Lng: ${Math.roundNumber(local_properties.poi[1], 2)}`
+								].join(", ")}`
+							].join("<br>"), {
+								name: local_properties.Name,
+								can_rename: false,
+								width: "16rem"
+							});
+						});
+						
+						let local_marker;
+						if (local_properties.poi) {
+							local_marker = new maptalks.Marker([local_properties.poi[1], local_properties.poi[0]], {
+								symbol: {
+									textFaceName: "Karla",
+									textName: local_properties.Name,
+									textFill: "white",
+									textHaloFill: "black",
+									textHaloRadius: 2,
+									textSize: {
+										stops: [
+											[2, 0],
+											[4, 10],
+											[5, 14],
+										],
+									}
+								}
+							});
+						}
+						
+						this.geometries.push(local_geometry);
+						if (local_marker) label_geometries.push(local_marker);
+					}
 				}
 		}
+		this.geometries = this.geometries.concat(label_geometries);
 		
 		//Iterate over all this.geometries and render them on the map
 		for (let i = 0; i < this.geometries.length; i++)
