@@ -4,12 +4,12 @@ settings
 .ve-sm
 
 # Handle CDS
-core/1.data_scraping/**/*
-!core/1.data_scraping/**/
-!core/1.data_scraping/**/*.js
-core/2.data_cleaning/**/*
-!core/2.data_cleaning/**/
-!core/2.data_cleaning/**/*.js
+histmap/1.data_scraping/**/*
+!histmap/1.data_scraping/**/
+!histmap/1.data_scraping/**/*.js
+histmap/2.data_cleaning/**/*
+!histmap/2.data_cleaning/**/
+!histmap/2.data_cleaning/**/*.js
 
 temp_jobs
 

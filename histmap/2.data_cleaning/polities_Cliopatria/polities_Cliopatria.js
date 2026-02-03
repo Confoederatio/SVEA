@@ -1,8 +1,9 @@
 global.polities_Cliopatria = class {
-	static input_path_anaconda_activate = "C:\\Users\\htmlp\\anaconda3\\Scripts\\activate.bat";
-	static input_path_conda_home = "C:\\Users\\htmlp\\anaconda3";
-	static input_rasters_robinson = "./core/1.data_scraping/polities_Cliopatria/original_map_images/";
-	static intermediate_rasters_equirectangular = "./core/2.data_cleaning/polities_Cliopatria/rasters_equirectangular/";
+	static input_path_anaconda_activate = "C:/Users/htmlp/anaconda3/Scripts/activate.bat";
+	static input_path_conda_home = "C:/Users/htmlp/anaconda3";
+	static input_rasters_robinson = `${h1}polities_Cliopatria/original_map_images/`;
+	static intermediate_rasters_colourmaps = `${h2}polities_Cliopatria/rasters_colourmap/`;
+	static intermediate_rasters_equirectangular = `${h2}polities_Cliopatria/rasters_equirectangular/`;
 	
 	static A_getAllRobinsonRasters () {
 		//Declare local instance variables
@@ -66,12 +67,10 @@ global.polities_Cliopatria = class {
 		// Point directly to the source to bypass your /K wrapper
 		const tempBatDir = path.resolve(process.cwd(), 'temp_jobs');
 		
-		if (!fs.existsSync(tempBatDir)) {
+		if (!fs.existsSync(tempBatDir))
 			fs.mkdirSync(tempBatDir, { recursive: true });
-		}
 		
-		console.log(`- Mutex-Locked Sequence started. Total files: ${all_rasters.length}`);
-		
+		//Iterate over all_rasters
 		for (let i = 0; i < all_rasters.length; i++) {
 			const local_raster = path.resolve(all_rasters[i]);
 			
@@ -116,11 +115,8 @@ global.polities_Cliopatria = class {
 				console.error(`\n[!] Job ${i} failed with status ${result.status}`);
 			}
 			
-			// --- HARD WAIT ---
-			// Even after the process exits, Anaconda sometimes holds file handles for 
-			// a moment. We force a 1.5s wait before allowing the loop to continue.
+			//MUTEX LOCK: Wait 1,5 seconds for Anaconda to resolve
 			await new Promise((resolve) => setTimeout(resolve, 1500));
-			// --- MUTEX LOCK END ---
 		}
 		
 		console.log(`\n- Sequence finished. Total processed: ${all_output_rasters.length}`);
@@ -194,16 +190,27 @@ global.polities_Cliopatria = class {
 		}
 	}
 	
-	static async E_renderYear (arg0_year) {
-		//Convert from parameters
-		let year = parseInt(arg0_year);
+	static async E_generateColourmaps () {
+		//Declare local instance variables
+		let all_files = File.getAllFilesSync(this.intermediate_rasters_equirectangular);
+		let equirectangular_years = [];
 		
-		await GeoPNG.kNNBin(`./core/2.data_cleaning/polities_Cliopatria/rasters_equirectangular/${year}.png`, `./core/2.data_cleaning/polities_Cliopatria/rasters_colourmap/${year}.png`, {
-			bin_colours: [[5, 7, 8, 255], [2, 4, 1, 255], [0, 0, 0, 255], [0, 0, 255, 255], [255, 0, 0, 255], [2, 5, 4, 255], [5, 7, 2, 255], [2, 4, 6, 255]],
-			ignore_colours: [[182, 220, 244, 255],  [217, 237, 249, 255]]
-		});
-		await GeoPNG.convertToGeoJSON(`./core/2.data_cleaning/polities_Cliopatria/rasters_colourmap/${year}.png`, `./core/2.data_cleaning/polities_Cliopatria/geojson_equirectangular/${year}.geojson`, { ignore_colours: [[0, 0, 0, 0], [182, 220, 244, 255], [216, 217, 218, 255], [217, 237, 249, 255], [144, 58, 0, 255], [255, 255, 219, 255], [0, 102, 182, 255], [0, 0, 102, 255], [182, 255, 255, 255], [58, 58, 58, 255], [0, 58, 144, 255], [219, 255, 255, 255], [219, 144, 58, 255], [58, 144, 219, 255], [182, 102, 0, 255], [255, 255, 182, 255], [102, 0, 0, 255], [102, 182, 255, 255], [0, 0, 58, 255], [144, 219, 255, 255], [255, 182, 102, 255], [255, 219, 144, 255], [0, 102, 144, 255], [58, 0, 0, 255], [255, 182, 144, 255], [144, 144, 102, 255], [219, 255, 182, 255], [144, 219, 182, 255] ] });
-		main.mapmodes.mapmodes.geojson.draw(`./core/2.data_cleaning/polities_Cliopatria/geojson_equirectangular/${year}.geojson`)
+		//Iterate over all_files and append them to equirectangular_rasters if valid
+		for (let i = 0; i < all_files.length; i++) {
+			let local_basename = path.basename(all_files[i]);
+			let local_year = parseInt(local_basename.replace(".png", ""));
+			
+			if (local_basename.endsWith(".png") && !isNaN(local_year))
+				equirectangular_years.push(local_year);
+		}
+		
+		//Iterate over equirectangular_years and process them sequentially
+		equirectangular_years.sort((a, b) => a - b); //Sort in ascending order
+		
+		for (let i = 0; i < equirectangular_years.length; i++) {
+			await this.Experimental_renderYear(equirectangular_years[i]);
+			console.log(`Processed colourmap for ${equirectangular_years[i]}.`);
+		}
 	}
 	
 	static async processRasters () {
@@ -215,5 +222,27 @@ global.polities_Cliopatria = class {
 		await this.C_deleteAuxXMLFiles();
 		//4. Normalise Equirectangular
 		await this.D_normaliseEquirectangular();
+		//5. Process colourmaps
+		await this.E_generateColourmaps();
+	}
+	
+	//Experimental methods
+	static async Experimental_renderYear (arg0_year) {
+		//Convert from parameters
+		let year = parseInt(arg0_year);
+		
+		main.date = {
+			year: year,
+			month: 1,
+			day: 1,
+			hour: 0,
+			minute: 0
+		}
+		await GeoPNG.kNNBin(`./core/2.data_cleaning/polities_Cliopatria/rasters_equirectangular/${year}.png`, `./core/2.data_cleaning/polities_Cliopatria/rasters_colourmap/${year}.png`, {
+			bin_colours: [[5, 7, 8, 255], [2, 4, 1, 255], [0, 0, 255, 255], [255, 0, 0, 255], [2, 5, 4, 255], [5, 7, 2, 255], [2, 4, 6, 255]],
+			ignore_colours: [[182, 220, 244, 255],  [217, 237, 249, 255]]
+		});
+		await GeoPNG.convertToGeoJSON(`./core/2.data_cleaning/polities_Cliopatria/rasters_colourmap/${year}.png`, `./core/2.data_cleaning/polities_Cliopatria/geojson_equirectangular/${year}.geojson`, { ignore_colours: [[0, 0, 0, 0], [182, 220, 244, 255], [216, 217, 218, 255], [217, 237, 249, 255], [144, 58, 0, 255], [255, 255, 219, 255], [0, 102, 182, 255], [0, 0, 102, 255], [182, 255, 255, 255], [58, 58, 58, 255], [0, 58, 144, 255], [219, 255, 255, 255], [219, 144, 58, 255], [58, 144, 219, 255], [182, 102, 0, 255], [255, 255, 182, 255], [102, 0, 0, 255], [102, 182, 255, 255], [0, 0, 58, 255], [144, 219, 255, 255], [255, 182, 102, 255], [255, 219, 144, 255], [0, 102, 144, 255], [58, 0, 0, 255], [255, 182, 144, 255], [144, 144, 102, 255], [219, 255, 182, 255], [144, 219, 182, 255] ] });
+		main.mapmodes.mapmodes.geojson.draw(`./core/2.data_cleaning/polities_Cliopatria/geojson_equirectangular/${year}.geojson`);
 	}
 };

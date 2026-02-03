@@ -2,7 +2,7 @@ global.polities_Cliopatria_UI = class {
 	/**
 	 * @type {string}
 	 */
-	static input_path = "./core/1.data_scraping/polities_Cliopatria/cliopatria.geojson/cliopatria_polities_only.geojson";
+	static input_path = `${h1}/polities_Cliopatria/cliopatria.geojson/cliopatria_polities_only.geojson`;
 	
 	constructor (arg0_options) {
 		//Declare local instance variables

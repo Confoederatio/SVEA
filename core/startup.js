@@ -11,6 +11,14 @@ global.util = require("util");
 
 global.exec = util.promisify(require("child_process").exec);
 
+//File path constants
+h1 = "./histmap/1.data_scraping/";
+h2 = "./histmap/2.data_cleaning/";
+h3 = "./histmap/3.data_merging/";
+h4 = "./histmap/4.data_processing/";
+h5 = "./histmap/5.data_post_processing/";
+h6 = "./histmap/6.data_visualisation/";
+
 //Initialise functions
 {
   global.initialiseGlobal = function () {
@@ -100,7 +108,9 @@ global.exec = util.promisify(require("child_process").exec);
     //Accepts wildcards (*), exclusionary patterns (!), and folders/file paths
     load_files: [
       "!core/startup.js",
-      "core"
+      "core",
+      "histmap",
+      "livemap"
     ],
     special_function: function () {
       try {

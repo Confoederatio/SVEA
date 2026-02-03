@@ -5,7 +5,7 @@ let { performance } = require("perf_hooks");
 
 //Metadata - Title
 let latest_fps = 0;
-let vercengen_version = "0.95b";
+let svea_version = "0.1a";
 let title_update_interval;
 let win;
 
@@ -44,7 +44,7 @@ let win;
 
       let heap_used_mb = (memory_usage.heapUsed/1024/1024).toFixed(2);
 			let rss_mb = (memory_usage.rss/1024/1024).toFixed(2);
-			let title_string = `Vercengen ${vercengen_version} - FPS: ${latest_fps} | RAM: RSS ${rss_mb}MB/Heap ${heap_used_mb}MB`;
+			let title_string = `SVEA ${svea_version} - FPS: ${latest_fps} | RAM: RSS ${rss_mb}MB/Heap ${heap_used_mb}MB`;
 
       win.setTitle(title_string);
     }, 1000);
