@@ -317,9 +317,7 @@ ve.ScriptManager = class extends ve.Component {
 		this.scene_tabs_el.id = "scene-tabs";
 		
 		this.scene_interface = new ve.FlexInterface({
-			type: "horizontal",
-			blockly: this.scene_blockly,
-			monaco: this.scene_monaco
+			type: "horizontal"
 		}, {
 			name: "ScriptManagerInterface"
 		});
@@ -618,6 +616,11 @@ ve.ScriptManager = class extends ve.Component {
 		//Initialisation loop for ScriptManager to ensure all requisite elements are loaded first
 		this.scriptmanager_initialisation_loop = setInterval(() => {
 			this._drawHeight();
+			this.scene_interface.v = {
+				type: "horizontal",
+				blockly: this.scene_blockly,
+				monaco: this.scene_monaco
+			};
 			clearInterval(this.scriptmanager_initialisation_loop);
 		}, 100);
 		
@@ -709,8 +712,6 @@ ve.ScriptManager = class extends ve.Component {
 	}
 	
 	_drawHeight () {
-		if (!document.body.contains(this.scene_blockly_el.querySelector("svg"))) return; //Internal guard clause if svg is not currently defined
-		
 		//Declare local instance variables
 		let svg_el = this.scene_blockly_el.querySelector("svg");
 		let svg_rect = svg_el.getBoundingClientRect();
