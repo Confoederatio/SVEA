@@ -822,6 +822,7 @@ ve.registry.localisation = {
 	ScriptManager_blockly: "Blockly",
 	ScriptManager_clear_blockly_on_error: "Clear Blockly on error",
 	ScriptManager_clear_console: "Clear Console",
+	ScriptManager_confirm_synchronise: "Are you sure you want to synchronise",
 	ScriptManager_console: "Console",
 	ScriptManager_could_not_load_settings: "Could not load non-ScriptManager settings.",
 	ScriptManager_display_load_errors: "Display load errors",
