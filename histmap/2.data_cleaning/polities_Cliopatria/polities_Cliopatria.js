@@ -267,7 +267,7 @@ global.polities_Cliopatria = class {
 		}
 		
 		//Write to geojson
-		fs.writeFileSync(JSON.stringify(polities_Cliopatria_UI.input_path, "utf8"));
+		fs.writeFileSync(polities_Cliopatria_UI.input_path, JSON.stringify(geojson_obj), "utf8");
 		console.log(`Written to GeoJSON.`);
 	}
 	
