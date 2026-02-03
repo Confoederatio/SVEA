@@ -10,9 +10,20 @@ global.UI_DateMenu = class extends ve.Class {
 			
 			//Split up directional flows to prevent accessor race conditions
 			onprogramchange: (v) => {
+				//console.trace("date, onprogramchange");
+				DALS.Timeline.parseAction({
+					options: { name: "Refresh Date", key: "load_date" },
+					value: [{ type: "global", refresh_date: true }]
+				}, true);
 			},
 			onuserchange: (v) => { //[WIP] - Check that proxy is reset
-				main.mapmodes.draw();
+				DALS.Timeline.parseAction({
+					options: { name: "Set Date", key: "load_date" },
+					value: [
+						{ type: "global", set_date: v },
+						{ type: "global", refresh_date: true }
+					]
+				});
 			}
 		});
 		

@@ -14,6 +14,9 @@ html, head, body {
   top: 0px;
 }
 
+/* -- Map -- */
+.maptalks-attribution { display: none !important; }
+
 /* -- Scrollbar styling -- */
 ::-webkit-scrollbar {
   width: 0.25rem;
@@ -44,13 +47,5 @@ html, head, body {
 
 /* -- Root constants -- */
 :root {
-  --context-menu-background-colour: rgba(0, 0, 0, 0.85);
-  --context-menu-colour: white;
-  --context-menu-font-family: "Karla";
-
-  --context-menu-header-font-size: 2rem;
-  --context-menu-header-font-weight: 700;
-
-  --context-menu-body-font-size: 2rem;
-  --context-menu-body-font-weight: 300;
+    --geometry-selection-colour: yellow;
 }

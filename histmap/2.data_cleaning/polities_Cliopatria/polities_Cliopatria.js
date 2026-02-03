@@ -5,6 +5,7 @@ global.polities_Cliopatria = class {
 	static input_rasters_robinson = `${h1}polities_Cliopatria/original_map_images/`;
 	static intermediate_rasters_colourmaps = `${h2}polities_Cliopatria/rasters_colourmap/`;
 	static intermediate_rasters_equirectangular = `${h2}polities_Cliopatria/rasters_equirectangular/`;
+	static output_path_geojson = `${h2}/polities_Cliopatria/polities.geojson`;
 	
 	static A_getAllRobinsonRasters () {
 		//Declare local instance variables
@@ -267,7 +268,7 @@ global.polities_Cliopatria = class {
 		}
 		
 		//Write to geojson
-		fs.writeFileSync(polities_Cliopatria_UI.input_path, JSON.stringify(geojson_obj), "utf8");
+		fs.writeFileSync(polities_Cliopatria_UI.output_path_geojson, JSON.stringify(geojson_obj), "utf8");
 		console.log(`Written to GeoJSON.`);
 	}
 	
@@ -282,6 +283,8 @@ global.polities_Cliopatria = class {
 		await this.D_normaliseEquirectangular();
 		//5. Process colourmaps
 		await this.E_generateColourmaps();
+		//6. Assign colours
+		await this.F_assignColours();
 	}
 	
 	//Experimental methods

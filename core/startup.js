@@ -1,99 +1,104 @@
 //Import modules
 global.child_process = require("child_process");
 global.electron = require("electron");
-global.geotiff = require("geotiff")
 global.fs = require("fs");
-global.node_fs_promises = require("node:fs/promises");
 global.path = require("path");
-global.pngjs = require("pngjs")
-global.polylabel = require("polylabel");
-global.util = require("util");
-
-global.exec = util.promisify(require("child_process").exec);
-
-//File path constants
-h1 = "./histmap/1.data_scraping/";
-h2 = "./histmap/2.data_cleaning/";
-h3 = "./histmap/3.data_merging/";
-h4 = "./histmap/4.data_processing/";
-h5 = "./histmap/5.data_post_processing/";
-h6 = "./histmap/6.data_visualisation/";
 
 //Initialise functions
 {
   global.initialiseGlobal = function () {
-    //KEEP AT TOP! Make sure file paths exist
-    {
-      if (!fs.existsSync("./saves/")) fs.mkdirSync("./saves/");
-    }
-    
-    global.scene = new ve.Scene({
-      map_component: new ve.Map(undefined, {
-        base_layer_options: {
-          urlTemplate: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',
-          subdomains: ["a","b","c","d"],
-          repeatWorld: false
-        }
-      })
-    });
-      global.map = global.scene.map_component.map;
-    
-    //Declare local instance variables
+		//KEEP AT TOP! Make sure file paths exist
+		{
+			if (!fs.existsSync("./saves/")) fs.mkdirSync("./saves/");
+		}
+		
+		//Initialise global.scene
+		global.scene = new ve.Scene({
+			map_component: new ve.Map()
+		});
+			global.map = scene.map_component.map;
+		
+    //Declare global variables
+		global.main_navbar = new UI_Navbar();
     global.main = {
-      date: Date.getCurrentDate(),
-      interfaces: {
-        //Topbar
-        date_ui: new UI_DateMenu(),
-        
-        //Scene Interfaces
-        mapmodes: new UI_Mapmodes()
-      },
-      layers: {
-        entity_layer: new maptalks.VectorLayer("entity_layer", [], {
-          hitDetect: true,
-          interactive: true,
-          zIndex: 1
-        })
-      },
-      map: map,
-      user: {}
+			date: Date.getCurrentDate(),
+			hierarchy: {},
+			interfaces: {
+				//Leftbar
+				leftbar_ui: new UI_Leftbar(),
+				
+				//Rightbar
+				edit_geometry_label: new UI_EditGeometryLabel(),
+				edit_geometry_line: new UI_EditGeometryLine(),
+				edit_geometry_point: new UI_EditGeometryPoint(),
+				edit_geometry_polygon: new UI_EditGeometryPolygon(),
+				edit_selected_geometries_ui: new UI_EditSelectedGeometries(),
+				mapmodes_ui: new UI_Mapmodes(),
+				
+				//Topbar
+				date_ui: new UI_DateMenu(),
+				navbar: global.main_navbar,
+			},
+			_layers: { //Layers which are not appended to the map but kept internally
+				province_layers: [], //Array of all current naissance.Layers that are flagged as 'provinces'
+				provinces: new maptalks.VectorLayer("province_layer", [], { hitDetect: true, interactive: false }) 
+			},
+			layers: {
+				//Foreground layers
+				overlay_layer: new maptalks.VectorLayer("overlay_layer", [], { hitDetect: true, interactive: true, zIndex: 99 }),
+				cursor_layer: new maptalks.VectorLayer("cursor_layer", [], { hitDetect: false, interactive: false, zIndex: 98 }),
+				label_layer: new maptalks.VectorLayer("label_layer", [], { hitDetect: false, interactive: false, zIndex: 97 }),
+				
+				//Background layers
+				selection_layer: new maptalks.VectorLayer("selection_layer", [], { hitDetect: false, interactive: false, zIndex: 2 }),
+				entity_layer: new maptalks.VectorLayer("entity_layer", [], {
+					hitDetect: true,
+					interactive: true,
+					zIndex: 1 
+				})
+			},
+			map: map,
+			renderer: new naissance.Renderer(map),
+			settings: {},
+			user: {}
     };
-    
-    //1.1. Append all layers to map
-    Object.iterate(main.layers, (local_key, local_value) => local_value.addTo(map));
-    map.addLayer(new maptalks.TileLayer("gmaps", {
-      opacity: 0.3,
-      urlTemplate: "https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}",
-      subdomains: ["a","b","c","d"],
-      repeatWorld: false
-    }));
-    
-    //1.2. Add event handlers to map
-    //mousedown
-    let mousedown_dictionary = ["left_click", "middle_click", "right_click"];
-    map.on("mousedown", (e) => {
-      for (let i = 0; i < mousedown_dictionary.length; i++)
-        delete HTML[mousedown_dictionary[i]];
-      HTML[mousedown_dictionary[e.domEvent.which - 1]] = true;
-    });
-    
-    //mouseup
-    map.on("mouseup", (e) => {
-      for (let i = 0; i < mousedown_dictionary.length; i++)
-        delete HTML[mousedown_dictionary[i]];
-    });
-    
-    //1.3. Initialise Mapmodes
-    main.mapmodes = main.interfaces.mapmodes;
-  };
+		
+		if (!global.naissance) global.naissance = {};
+			main.map.settings = {
+				autoload_last_date: true
+			};
+			UI_Settings.loadSettings();
+			main.user.brush = new naissance.Brush();
+		
+		//1.1. Append all layers to map
+		Object.iterate(main.layers, (local_key, local_value) => local_value.addTo(map));
+		
+		//1.2. Add event handlers to map
+		//mousedown
+		let mousedown_dictionary = ["left_click", "middle_click", "right_click"];
+		map.on("mousedown", (e) => {
+			for (let i = 0; i < mousedown_dictionary.length; i++)
+				delete HTML[mousedown_dictionary[i]];
+			HTML[mousedown_dictionary[e.domEvent.which - 1]] = true;
+		});
+		
+		//mouseup
+		map.on("mouseup", (e) => {
+			for (let i = 0; i < mousedown_dictionary.length; i++)
+				delete HTML[mousedown_dictionary[i]];
+		});
+		
+		//2. Set aliases
+		main.brush = main.user.brush;
+  }
 
   function trackPerformance () {
     //Declare local instance variables
-    let { ipcRenderer } = require("electron");
-		
-		let frame_count = 0;
+		let { ipcRenderer } = require('electron');
+    let frame_count = 0;
 		let last_time = performance.now();
 
+		//Track FPS
     function trackFPS() {
       frame_count++;
 			let now = performance.now();
@@ -116,22 +121,23 @@ h6 = "./histmap/6.data_visualisation/";
 
 //Startup process
 {
-  ve.start({
-    //Accepts wildcards (*), exclusionary patterns (!), and folders/file paths
-    load_files: [
-      "!core/startup.js",
-      "core",
-      "histmap",
-      "livemap"
-    ],
-    special_function: function () {
-      try {
-        initialiseGlobal();
-      } catch (e) {
-        console.error(e);
-      }
-    }
-  });
-  
+	global.is_naissance = true;
+	ve.start({
+		//Accepts wildcards (*), exclusionary patterns (!), and folders/file paths
+		load_files: [
+			"common",
+			"!core/startup.js",
+			"!core/archives",
+			"core"
+		],
+		special_function: function () {
+			try {
+				initialiseGlobal();	
+			} catch (e) {
+				console.error(e);
+			}	
+		}
+	});
+
   trackPerformance();
 }
