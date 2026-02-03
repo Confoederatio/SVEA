@@ -1,6 +1,7 @@
 global.polities_Cliopatria = class {
 	static input_path_anaconda_activate = "C:/Users/htmlp/anaconda3/Scripts/activate.bat";
 	static input_path_conda_home = "C:/Users/htmlp/anaconda3";
+	static input_path_geojson = `${h1}/polities_Cliopatria/cliopatria.geojson/cliopatria_polities_only.geojson`;
 	static input_rasters_robinson = `${h1}polities_Cliopatria/original_map_images/`;
 	static intermediate_rasters_colourmaps = `${h2}polities_Cliopatria/rasters_colourmap/`;
 	static intermediate_rasters_equirectangular = `${h2}polities_Cliopatria/rasters_equirectangular/`;
@@ -190,7 +191,7 @@ global.polities_Cliopatria = class {
 		}
 	}
 	
-	static async E_generateColourmaps () {
+	static E_getAllRasterYears () {
 		//Declare local instance variables
 		let all_files = File.getAllFilesSync(this.intermediate_rasters_equirectangular);
 		let equirectangular_years = [];
@@ -204,13 +205,70 @@ global.polities_Cliopatria = class {
 				equirectangular_years.push(local_year);
 		}
 		
-		//Iterate over equirectangular_years and process them sequentially
 		equirectangular_years.sort((a, b) => a - b); //Sort in ascending order
+		
+		//Return statement
+		return equirectangular_years;
+	}
+	
+	static async E_generateColourmaps () {
+		//Declare local instance variables
+		let equirectangular_years = this.E_getAllRasterYears();
 		
 		for (let i = 0; i < equirectangular_years.length; i++) {
 			await this.Experimental_renderYear(equirectangular_years[i]);
 			console.log(`Processed colourmap for ${equirectangular_years[i]}.`);
 		}
+	}
+	
+	static async F_assignColours () {
+		//Declare local instance variables
+		let colourmap_years = this.E_getAllRasterYears();
+		let geojson_obj = JSON.parse(fs.readFileSync(polities_Cliopatria_UI.input_path, "utf8"));
+		
+		//Iterate over geojson_obj.features and assign POIs
+		for (let i = 0; i < geojson_obj.features.length; i++) {
+			let local_feature = geojson_obj.features[i];
+			
+			if (!local_feature.properties) geojson_obj.features[i].properties = {};
+			local_feature.properties.poi = Geospatiale.getPoleOfInaccessibility(geojson_obj.features[i]);
+			let local_marker = new maptalks.Marker([
+				local_feature.properties.poi[1],
+				local_feature.properties.poi[0]
+			]).addTo(main.layers.entity_layer);
+				local_marker.addEventListener("click", (e) => {
+					console.log(local_feature.properties);
+				});
+		}
+		console.log(geojson_obj.features);
+		
+		//Iterate over geojson_obj.features and assign .fill_colour
+		for (let i = 0; i < geojson_obj.features.length; i++) {
+			if (!geojson_obj.features[i].properties) geojson_obj.features[i].properties = {};
+			let local_properties = geojson_obj.features[i].properties;
+			
+			let local_midpoint = Array.getMidpoint([local_properties.FromYear, local_properties.ToYear]);
+			let local_poi_coord = Geospatiale.getEquirectangularCoordsPixel(local_properties.poi[0], local_properties.poi[1]);
+			let local_selected_year = Array.getClosest(colourmap_years, local_midpoint);
+			
+			let local_selected_colourmap = `${this.intermediate_rasters_colourmaps}${local_selected_year}.png`;
+			
+			try {
+				let local_colourmap_obj = GeoPNG.loadImage(local_selected_colourmap);
+				let local_rgba = GeoPNG.getRGBAFromPixel(local_colourmap_obj, local_poi_coord[1]*4320 + local_poi_coord[0]);
+				
+				//Set local_rgba
+				local_properties.fill_colour = local_rgba;
+				
+				console.log(`Selected File:`, local_selected_colourmap, `Local POI Coord:`, local_poi_coord, `RGBA:`, local_rgba);
+			} catch (e) { 
+				console.error(`Selected File:`, local_selected_colourmap, e);
+			}
+		}
+		
+		//Write to geojson
+		fs.writeFileSync(JSON.stringify(polities_Cliopatria_UI.input_path, "utf8"));
+		console.log(`Written to GeoJSON.`);
 	}
 	
 	static async processRasters () {

@@ -33,7 +33,7 @@
 		let asc_dataframe = GeoASC.readFile(input_file_path);
 		let image_columns = asc_dataframe[0].length;
 		let image_rows = asc_dataframe.length;
-		let max_value = Array.getMaximumInArray(asc_dataframe);
+		let max_value = Array.getMaximum(asc_dataframe);
 		
 		//Log image_columns; image_rows
 		console.log(`Converting .asc file ${input_file_path} to ${output_file_path} with dimensions ${image_columns}x${image_rows}. Maximum value in dataframe: ${max_value}`);

@@ -34,6 +34,12 @@ global.polities_Cliopatria_UI = class {
 				if (date_obj.year >= local_feature_properties.FromYear && date_obj.year <= local_feature_properties.ToYear) {
 					let local_geometry = new maptalks.GeoJSON.toGeometry(local_feature);
 					
+					if (local_geometry.properties)
+						local_geometry.updateSymbol({
+							lineWidth: 1,
+							polygonFill: local_geometry.properties?.fill_colour,
+							polygonOpacity: 0.5
+						});
 					this.geometries.push(local_geometry);
 				}
 		}
