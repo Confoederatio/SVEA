@@ -5,7 +5,7 @@ global.UI_Mapmodes = class extends ve.Class {
 		//Declare local instance variables
 		this.interface = new ve.Interface({
 			mapmode_selection: new ve.SearchSelect({
-				default_mapmode: veButton(() => {
+				/*default_mapmode: veButton(() => {
 					
 				}, {
 					attributes: {
@@ -28,7 +28,7 @@ global.UI_Mapmodes = class extends ve.Class {
 				}, {
 					name: "<icon>flag</icon><span style = 'display: none;'>Cliopatria</span>",
 					tooltip: "Cliopatria"
-				})
+				})*/
 			}, {
 				header_components_obj: {
 					add_new_mapmode: veButton(() => {
@@ -56,9 +56,10 @@ global.UI_Mapmodes = class extends ve.Class {
 				padding: 0
 			}
 		});
-		this.mapmodes = {
-			polities_Cliopatria_UI: new polities_Cliopatria_UI()
-		};
+		setTimeout(() => {
+			naissance.Mapmode.loadConfig();
+			this.draw();
+		}, 100);
 		
 		//Open window
 		super.open("instance", {
@@ -75,14 +76,16 @@ global.UI_Mapmodes = class extends ve.Class {
 	 * Draws all mapmode icons from {@link naissance.Mapmode|naissance.Mapmode.instances}.
 	 */
 	draw () {
+		//Declare local instance variables
+		let components_obj = {};
 		
-	}
-	
-	drawMapmode (arg0_date) {
-		//Convert from parameters
-		let date_obj = (arg0_date) ? arg0_date : main.date;
+		//Iterate over all naissance.Mapmode.instances
+		for (let i = 0; i < naissance.Mapmode.instances.length; i++) {
+			let local_mapmode = naissance.Mapmode.instances[i];
+			components_obj[local_mapmode.id] = local_mapmode.drawHierarchyDatatype();
+		}
 		
-		if (this.mapmode === "cliopatria")
-			this.mapmodes.polities_Cliopatria_UI.draw(date_obj);
+		//Set new mapmode_selection value
+		this.interface.mapmode_selection.v = components_obj;
 	}
 };

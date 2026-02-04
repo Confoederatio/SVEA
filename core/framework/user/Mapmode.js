@@ -35,12 +35,16 @@ naissance.Mapmode = class extends ve.Class { //[WIP] - Finish class body
 	}
 	
 	drawHierarchyDatatype () {
+		//Declare local instance variables
+		let display_name = (this.options.name) ? this.options.name : this.id;
+		
 		//Return statement
 		return veButton(() => {
 			this.show();
+			main.interfaces.mapmodes_ui.draw();
 		}, {
-			name: `<icon>${(this.options.icon) ? this.options.icon : "flag"}</icon>`,
-			tooltip: `${(this.options.name) ? this.options.name : this.id}`
+			name: `<icon>${(this.options.icon) ? this.options.icon : "flag"}</icon><span style = 'display: none'>${display_name}</span>`,
+			tooltip: display_name
 		});
 	}
 	
@@ -59,28 +63,71 @@ naissance.Mapmode = class extends ve.Class { //[WIP] - Finish class body
 	}
 	
 	show () {
-		if (main.user.mapmodes.includes(this.id)) return; //Internal guard clause if mapmode is already included
+		//if (main.user.mapmodes.includes(this.id)) return; //Internal guard clause if mapmode is already included
 		
 		//Declare local instance variables
 		let mapmode_layer = main.layers[`mapmode_${this.options.layer}_layer`];
 		
-		main.user.mapmodes.push(this.id);
-		
-		if (this.options.special_function) {
-			//Remove all current geometries before resetting
-			for (let i = 0; i < this.geometries.length; i++)
-				this.geometries[i].remove();
-			this.geometries = this.options.special_function(this);
-			
-			for (let i = 0; i < this.geometries.length; i++)
-				this.geometries[i].addTo(mapmode_layer);
-		}
+		if (!main.user.mapmodes.includes(this.id)) main.user.mapmodes.push(this.id);
+		naissance.Mapmode.draw();
 	}
 	
+	static draw () {
+		//Iterate over all main.user.mapmodes in order and render them
+		for (let i = 0; i < main.user.mapmodes.length; i++) {
+			let local_mapmode;
+			for (let x = 0; x < naissance.Mapmode.instances.length; x++)
+				if (naissance.Mapmode.instances[x].id === main.user.mapmodes[i]) {
+					local_mapmode = naissance.Mapmode.instances[x];
+					break;
+				}
+			
+			//Draw the local_mapmode if possible
+			{
+				let local_mapmode_layer = main.layers[`mapmode_${local_mapmode.options.layer}_layer`];
+				
+				//Remove all current geometries before resetting
+				for (let x = 0; x < local_mapmode.geometries.length; x++)
+					local_mapmode.geometries[x].remove();
+				
+				//Assign new_geometries
+				let new_geometries = local_mapmode.options.special_function(local_mapmode);
+				
+				if (new_geometries !== undefined) {
+					local_mapmode.geometries = new_geometries;
+				} else {
+					console.warn(`naissance.Mapmode: ${local_mapmode.id}.special_function does not return a valid geometries array.`);
+				}
+				
+				//Iterate over all local_mapmode.geometries and draw them
+				for (let x = 0; x < local_mapmode.geometries.length; x++)
+					local_mapmode.geometries[x].addTo(local_mapmode_layer);
+			}
+		}
+		
+	} //[WIP] - Temporary hook
+	
 	/**
-	 * Loads config mapmodes from `./common/mapmodes/`, mapmodes with conflicting IDs are replaced
+	 * Loads config mapmodes from `config.mapmodes`, mapmodes with conflicting IDs are replaced
 	 */
 	static loadConfig () {
-		
+		//Iterate over config.mapmodes if it exists
+		if (config.mapmodes)
+			Object.iterate(config.mapmodes, (local_key, local_value) => {
+				//Iterate over naissance.Mapmode.instances and remove duplicate mapmodes
+				for (let i = 0; i < naissance.Mapmode.instances.length; i++) {
+					let local_mapmode = naissance.Mapmode.instances[i];
+					
+					if (local_mapmode.id === local_key) {
+						local_mapmode.hide();
+						naissance.Mapmode.instances.splice(i, 1);
+						break;
+					}
+				}
+				
+				//Push local_value as new mapmode
+				new naissance.Mapmode(local_key, local_value);
+			});
+		main.interfaces.mapmodes_ui.draw();
 	}
 };

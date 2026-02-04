@@ -71,6 +71,7 @@ global.h6 = "./histmap/6.data_visualisation/";
 			renderer: new naissance.Renderer(map),
 			settings: {},
 			user: {
+				_mapmodes: {},
 				mapmodes: []
 			}
     };
