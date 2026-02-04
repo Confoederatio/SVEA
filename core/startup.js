@@ -3,6 +3,7 @@ global.child_process = require("child_process");
 global.electron = require("electron");
 global.fs = require("fs");
 global.path = require("path");
+global.polylabel = require("polylabel");
 
 global.h1 = "./histmap/1.data_scraping/";
 global.h2 = "./histmap/2.data_cleaning/";

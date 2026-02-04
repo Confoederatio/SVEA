@@ -13,7 +13,7 @@ if (!global.naissance) global.naissance = {};
  * 
  * @type {naissance.Mapmode}
  */
-naissance.Mapmode = class extends ve.Class {
+naissance.Mapmode = class extends ve.Class { //[WIP] - Finish class body
 	static instances = [];
 	
 	constructor (arg0_mapmode_id, arg1_options) {

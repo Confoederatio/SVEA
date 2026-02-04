@@ -37,6 +37,9 @@ global.polities_Cliopatria_UI = class {
 				if (date_obj.year >= local_feature_properties.FromYear && date_obj.year <= local_feature_properties.ToYear) {
 					let local_geometry = new maptalks.GeoJSON.toGeometry(local_feature);
 					let local_properties = local_geometry.properties;
+					let turf_simplify = turf.simplify(Geospatiale.convertMaptalksToTurf(local_geometry), { tolerance: 0.1 });
+					
+					let optimised_poi = Geospatiale.getPoleOfInaccessibility(turf_simplify);
 					
 					if (local_geometry.properties) {
 						let local_fill_colour = local_properties.fill_colour;
@@ -47,7 +50,6 @@ global.polities_Cliopatria_UI = class {
 							polygonOpacity: 0.5
 						});
 						local_geometry.addEventListener("click", (e) => {
-							
 							if (this.polity_window) this.polity_window.close();
 							this.polity_window = veWindow([
 								`<b>Components:</b> ${local_properties.Components}`,
@@ -67,7 +69,7 @@ global.polities_Cliopatria_UI = class {
 						
 						let local_marker;
 						if (local_properties.poi) {
-							local_marker = new maptalks.Marker([local_properties.poi[1], local_properties.poi[0]], {
+							local_marker = new maptalks.Marker([optimised_poi[1], optimised_poi[0]], {
 								symbol: {
 									textFaceName: "Karla",
 									textName: local_properties.Name,
@@ -86,7 +88,8 @@ global.polities_Cliopatria_UI = class {
 						}
 						
 						this.geometries.push(local_geometry);
-						if (local_marker) label_geometries.push(local_marker);
+						if (local_marker)
+							label_geometries.push(local_marker);
 					}
 				}
 		}
