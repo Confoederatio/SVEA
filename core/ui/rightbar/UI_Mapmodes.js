@@ -71,6 +71,13 @@ global.UI_Mapmodes = class extends ve.Class {
 		});
 	}
 	
+	/**
+	 * Draws all mapmode icons from {@link naissance.Mapmode|naissance.Mapmode.instances}.
+	 */
+	draw () {
+		
+	}
+	
 	drawMapmode (arg0_date) {
 		//Convert from parameters
 		let date_obj = (arg0_date) ? arg0_date : main.date;
