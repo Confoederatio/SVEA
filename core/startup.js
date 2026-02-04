@@ -58,17 +58,21 @@ global.h6 = "./histmap/6.data_visualisation/";
 				label_layer: new maptalks.VectorLayer("label_layer", [], { hitDetect: false, interactive: false, zIndex: 97 }),
 				
 				//Background layers
-				selection_layer: new maptalks.VectorLayer("selection_layer", [], { hitDetect: false, interactive: false, zIndex: 2 }),
+				selection_layer: new maptalks.VectorLayer("selection_layer", [], { hitDetect: false, interactive: false, zIndex: 4 }),
+				mapmode_top_layer: new maptalks.VectorLayer("mapmode_top_layer", [], { hitDetect: true, interactive: true, zIndex: 3 }),
 				entity_layer: new maptalks.VectorLayer("entity_layer", [], {
 					hitDetect: true,
 					interactive: true,
-					zIndex: 1 
-				})
+					zIndex: 2 
+				}),
+				mapmode_bottom_layer: new maptalks.VectorLayer("mapmode_bottom_layer", [], { hitDetect: true, interactive: true, zIndex: 1 }),
 			},
 			map: map,
 			renderer: new naissance.Renderer(map),
 			settings: {},
-			user: {}
+			user: {
+				mapmodes: []
+			}
     };
 		
 		if (!global.naissance) global.naissance = {};

@@ -6,6 +6,7 @@ if (!global.naissance) global.naissance = {};
  * - `arg1_options`: {@link Object}
  *   - `.icon`: {@link string}
  *   - `.name`: {@link string}
+ *   - `.layer="bottom"`: {@link string} - Either 'bottom'/'top', targets `main.layers.mapmode_<key>_layer`.
  *   - 
  *   - `.node_editor_file`: {@link string}
  *   - `.node_editor_value`: {@link Object}
@@ -23,6 +24,7 @@ naissance.Mapmode = class extends ve.Class { //[WIP] - Finish class body
 			super();
 			
 		//Declare local instance variables
+		this.geometries = [];
 		this.id = (mapmode_id) ? mapmode_id : Class.generateRandomID(naissance.Mapmode);
 		this.options = options;
 	}
@@ -30,10 +32,24 @@ naissance.Mapmode = class extends ve.Class { //[WIP] - Finish class body
 	drawHierarchyDatatype () {
 		//Return statement
 		return veButton(() => {
-			
+			this.show();
 		}, {
 			name: `<icon>${(this.options.icon) ? this.options.icon : "flag"}</icon>`,
 			tooltip: `${(this.options.name) ? this.options.name : this.id}`
 		});
+	}
+	
+	hide () {
+		//Iterate over all this.geometries and remove them from the map
+		for (let i = 0; i < this.geometries.length; i++)
+			this.geometries[i].remove();
+		this.geometries = [];
+	}
+	
+	show () {
+		if (main.user.mapmodes.includes(this.id)) return;
+		main.user.mapmodes.push(this.id);
+		
+		//
 	}
 };
