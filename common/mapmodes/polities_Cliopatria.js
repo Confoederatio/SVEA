@@ -2,10 +2,9 @@ config.mapmodes.polities_Cliopatria = {
 	name: "Cliopatria (Polities)",
 	icon: "flag",
 	
-	special_function: function (arg0_mapmode_obj) {
-		if (!main.user._mapmodes.polities_Cliopatria_UI) 
-			main.user._mapmodes.polities_Cliopatria_UI = new polities_Cliopatria_UI();
-		let class_obj = main.user._mapmodes.polities_Cliopatria_UI;
+	special_function: function (v) {
+		if (!v.class_obj) v.class_obj = new polities_Cliopatria_UI();
+		let class_obj = v.class_obj;
 			class_obj.draw(main.date);
 		
 		//Return statement
