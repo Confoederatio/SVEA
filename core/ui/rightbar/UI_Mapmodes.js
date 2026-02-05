@@ -48,11 +48,34 @@ global.UI_Mapmodes = class extends ve.Class {
 				},
 				filter_names: {
 					"data-default": "Default"
-				}
+				},
+				searchbar_style: {
+					marginBottom: "calc(var(--padding))"
+				},
 			})
 		}, {
 			is_folder: false,
 			style: {
+				'[component="ve-button"]': {
+					position: "relative"
+				},
+				'[component="ve-button"] .priority-element': {
+					alignItems: "center",
+					backgroundColor: "var(--bg-secondary-colour)",
+					border: "1px solid var(--hover-colour)",
+					borderRadius: "50%",
+					display: "flex",
+					height: "var(--body-font-size)",
+					justifyContent: "center",
+					position: "absolute",
+					top: 0,
+					right: 0,
+					transform: "translate(calc(100% - var(--padding)), calc(-100%))",
+					width: "var(--body-font-size)",
+				},
+				'[data-selected-mapmode="true"] button': {
+					backgroundColor: `var(--accent-secondary-colour)`
+				},
 				padding: 0
 			}
 		});
@@ -83,6 +106,16 @@ global.UI_Mapmodes = class extends ve.Class {
 		for (let i = 0; i < naissance.Mapmode.instances.length; i++) {
 			let local_mapmode = naissance.Mapmode.instances[i];
 			components_obj[local_mapmode.id] = local_mapmode.drawHierarchyDatatype();
+			
+			let local_component_obj = components_obj[local_mapmode.id];
+			
+			//Set local_component_obj top right numeric element if enabled
+			if (local_mapmode.is_enabled) {
+				let local_priority_el = document.createElement("div");
+					local_priority_el.classList.add("priority-element");
+					local_priority_el.innerHTML = main.user.mapmodes.indexOf(local_mapmode.id).toString();
+				local_component_obj.element.appendChild(local_priority_el);
+			}
 		}
 		
 		//Set new mapmode_selection value

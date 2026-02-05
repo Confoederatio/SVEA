@@ -34,15 +34,31 @@ naissance.Mapmode = class extends ve.Class { //[WIP] - Finish class body
 		naissance.Mapmode.instances.push(this);
 	}
 	
+	get is_enabled () {
+		//Iterate over all naissance.Mapmode.instances
+		for (let i = 0; i < main.user.mapmodes.length; i++)
+			if (main.user.mapmodes[i] === this.id)
+				//Return statement
+				return true;
+		return false;
+	}
+	
 	drawHierarchyDatatype () {
 		//Declare local instance variables
 		let display_name = (this.options.name) ? this.options.name : this.id;
 		
 		//Return statement
 		return veButton(() => {
-			this.show();
+			if (!this.is_enabled) {
+				this.show();
+			} else {
+				this.hide();
+			}
 			main.interfaces.mapmodes_ui.draw();
 		}, {
+			attributes: {
+				"data-selected-mapmode": this.is_enabled
+			},
 			name: `<icon>${(this.options.icon) ? this.options.icon : "flag"}</icon><span style = 'display: none'>${display_name}</span>`,
 			tooltip: display_name
 		});
@@ -104,8 +120,7 @@ naissance.Mapmode = class extends ve.Class { //[WIP] - Finish class body
 					local_mapmode.geometries[x].addTo(local_mapmode_layer);
 			}
 		}
-		
-	} //[WIP] - Temporary hook
+	}
 	
 	/**
 	 * Loads config mapmodes from `config.mapmodes`, mapmodes with conflicting IDs are replaced
@@ -115,13 +130,12 @@ naissance.Mapmode = class extends ve.Class { //[WIP] - Finish class body
 		if (config.mapmodes)
 			Object.iterate(config.mapmodes, (local_key, local_value) => {
 				//Iterate over naissance.Mapmode.instances and remove duplicate mapmodes
-				for (let i = 0; i < naissance.Mapmode.instances.length; i++) {
+				for (let i = naissance.Mapmode.instances.length - 1; i >= 0; i--) {
 					let local_mapmode = naissance.Mapmode.instances[i];
 					
 					if (local_mapmode.id === local_key) {
 						local_mapmode.hide();
 						naissance.Mapmode.instances.splice(i, 1);
-						break;
 					}
 				}
 				
