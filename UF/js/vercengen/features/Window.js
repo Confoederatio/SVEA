@@ -212,7 +212,13 @@ ve.Window = class extends ve.Feature {
 			this.element.classList.add("draggable");
 			HTML.elementDragHandler(this.element, {
 				instance: this,
-				is_resizable: (this.options.resizeable)
+				is_resizable: (this.options.resizeable),
+				
+				bottom_elements: this.options.bottom_elements,
+				left_elements: this.options.left_elements,
+				right_elements: this.options.right_elements,
+				top_elements: (this.options.top_elements) ? 
+					this.options.top_elements : [document.querySelector(".ve.navbar")]
 			});
 		}
 		
