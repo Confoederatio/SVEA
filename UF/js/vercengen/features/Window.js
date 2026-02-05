@@ -25,6 +25,11 @@
  *   - `.headless`: {@link boolean}
  *   - `.resizeable`: {@link boolean}
  *   - 
+ *   - `.bottom_elements`: {@link Array}<{@link HTMLElement}> - Determines margin from bottom.
+ *   - `.left_elements`: {@link Array}<{@link HTMLElement}> - Determines margin from left.
+ *   - `.right_elements`: {@link Array}<{@link HTMLElement}> - Determines margin from right.
+ *   - `.top_elements`: {@link Array}<{@link HTMLElement}> - Determines margin from top.
+ *   - 
  *   - `.onuserchange`: {@link function}(arg0_v:{@link Object}, arg1_e:{@link Event}) - Fires upon user changes to the window. Changes are discrete, and the set of Object keys may vary.
  *     - `arg0_v`: {@link Object}
  *       - `.close`: {@link boolean} - Whether the change is a close event.
