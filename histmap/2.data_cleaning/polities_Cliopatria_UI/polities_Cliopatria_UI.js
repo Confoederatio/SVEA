@@ -24,6 +24,7 @@ global.polities_Cliopatria_UI = class {
 		
 		//Declare local instance variables
 		let label_geometries = [];
+		let map_defines = config.defines.map;
 		
 		//Clear map first
 		this.clear();
@@ -68,24 +69,13 @@ global.polities_Cliopatria_UI = class {
 						});
 						
 						let local_marker;
-						if (local_properties.poi) {
+						if (local_properties.poi)
 							local_marker = new maptalks.Marker([optimised_poi[1], optimised_poi[0]], {
 								symbol: {
-									textFaceName: "Karla",
-									textName: local_properties.Name,
-									textFill: "white",
-									textHaloFill: "black",
-									textHaloRadius: 2,
-									textSize: {
-										stops: [
-											[2, 0],
-											[4, 10],
-											[5, 14],
-										],
-									}
+									...map_defines.default_label_symbol,
+									textName: local_properties.Name
 								}
 							});
-						}
 						
 						this.geometries.push(local_geometry);
 						if (local_marker)
