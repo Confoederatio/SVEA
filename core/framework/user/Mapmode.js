@@ -79,11 +79,6 @@ naissance.Mapmode = class extends ve.Class { //[WIP] - Finish class body
 	}
 	
 	show () {
-		//if (main.user.mapmodes.includes(this.id)) return; //Internal guard clause if mapmode is already included
-		
-		//Declare local instance variables
-		let mapmode_layer = main.layers[`mapmode_${this.options.layer}_layer`];
-		
 		if (!main.user.mapmodes.includes(this.id)) main.user.mapmodes.push(this.id);
 		naissance.Mapmode.draw();
 	}

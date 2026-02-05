@@ -67,10 +67,14 @@ global.UI_Mapmodes = class extends ve.Class {
 					display: "flex",
 					height: "var(--body-font-size)",
 					justifyContent: "center",
+					padding: "calc(var(--cell-padding)*0.5)",
 					position: "absolute",
 					top: 0,
 					right: 0,
-					transform: "translate(calc(100% - var(--padding)), calc(-100%))",
+					transform: `translate(
+						calc(100% - var(--padding) - 2px - var(--cell-padding)), 
+						calc(-100% + var(--cell-padding))
+					)`,
 					width: "var(--body-font-size)",
 				},
 				'[data-selected-mapmode="true"] button': {
@@ -113,7 +117,7 @@ global.UI_Mapmodes = class extends ve.Class {
 			if (local_mapmode.is_enabled) {
 				let local_priority_el = document.createElement("div");
 					local_priority_el.classList.add("priority-element");
-					local_priority_el.innerHTML = main.user.mapmodes.indexOf(local_mapmode.id).toString();
+					local_priority_el.innerHTML = (main.user.mapmodes.indexOf(local_mapmode.id) + 1).toString();
 				local_component_obj.element.appendChild(local_priority_el);
 			}
 		}
