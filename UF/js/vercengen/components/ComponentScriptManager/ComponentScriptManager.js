@@ -317,8 +317,12 @@ ve.ScriptManager = class extends ve.Component {
 		this.scene_tabs_el.id = "scene-tabs";
 		
 		//Initialise scene_interface now, but only append its components upon this.scriptmanager_initialisation_loop
-		this.scene_interface = new ve.FlexInterface({ type: "horizontal" }, {
-			name: "ScriptManagerInterface"
+		this.scene_interface = new ve.FlexInterface({ 
+			type: "horizontal",
+			blockly: this.scene_blockly,
+			monaco: this.scene_monaco
+		}, {
+			name: "ScriptManagerInterface",
 		});
 		
 		this.scene_el.append(this.scene_interface.element, this.scene_tabs_el);
