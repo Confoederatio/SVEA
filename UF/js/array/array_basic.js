@@ -8,6 +8,52 @@
 		 */
 		global.Array = {};
 	
+	Array.create = function (arg0_options) {
+		//Convert from parameters
+		let options = (arg0_options) ? arg0_options : {};
+		
+		//Declare local instance variables
+		let return_array = [];
+		
+		//Process array
+		if (options.domain) {
+			let domain_range = Math.getRange(options.domain);
+			
+			for (let i = domain_range[0]; i <= domain_range[1]; i++)
+				return_array.push(i);
+		}
+		if (options.linear_sequence) {
+			let domain_range = Math.getRange(options.linear_sequence);
+			let step = (options.linear_sequence[2]) ? options.linear_sequence[2] : 1;
+			
+			for (let i = domain_range[0]; i <= domain_range[1]; i+= step)
+				return_array.push(step);
+		}
+		if (options.sequence) {
+			let sequence_literal = options.sequence[0];
+			
+			for (let i = 0; i < options.sequence[1]; i++) {
+				let local_expression = `var n = ${i}; return ${sequence_literal};`;
+				let local_result = new Function(local_expression)();
+				
+				return_array.push(local_result);
+			}
+		}
+		if (options.repeat) {
+			for (let i = 0; i < options.repeat[1]; i++)
+				for (let x = 0; x < options.repeat[0].length; x++)
+					return_array.push(options.repeat[0][x]);
+		}
+		if (options.repeat_each) {
+			for (let i = 0; i < options.repeat_each[0].length; i++)
+				for (let x = 0; x < options.repeat_each[1]; x++)
+					return_array.push(options.repeat_each[0][i]);
+		}
+		
+		//Return statement
+		return return_array;
+	};
+	
 	/**
 	 * Converts a spreadsheet cell string (e.g. 'A1', 'ZZ15') into 1-based coordinates.
 	 * @alias Array.fromSpreadsheetCell

@@ -67,7 +67,7 @@
 			if (Array.isArray(array[i])) {
 				max_value = Array.getMaximum(array[i], max_value);
 			} else {
-				if (typeof array[i] == "number")
+				if (typeof array[i] === "number")
 					if (max_value) {
 						max_value = Math.max(array[i], max_value);
 					} else {
@@ -121,7 +121,7 @@
 			if (Array.isArray(array[i])) {
 				min_value = Array.getMinimum(array[i], min_value);
 			} else {
-				if (typeof array[i] == "number")
+				if (typeof array[i] === "number")
 					if (min_value) {
 						min_value = Math.max(array[i], min_value);
 					} else {
