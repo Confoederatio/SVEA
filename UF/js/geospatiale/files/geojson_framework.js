@@ -1,7 +1,24 @@
 //Initialise functions
 {
-	if (!global.GeoJSON) global.GeoJSON = {};
+	if (!global.GeoJSON)
+		/**
+		 * Handles GeoJSON files. Part of Geospatiale III.
+		 *
+		 * @namespace GeoJSON
+		 */
+		global.GeoJSON = {};
 	
+	//[QUARANTINE]
+	/**
+	 * Fills a GeoJSON Polygon on a given RGBA buffer.
+	 * @param {Buffer<ArrayBuffer>} arg0_rgba_buffer
+	 * @param {Object} arg1_polygon
+	 * @param {Object} [arg2_options]
+	 *  @param {number} [arg2_options.height=2160] - The height of the underlying RGBA buffer.
+	 *  @param {number} [arg2_options.width=4320] - The width of the underlying RGBA buffer.
+	 *
+	 * @returns {Buffer<ArrayBuffer>}
+	 */
 	GeoJSON.fillPolygon = function (arg0_rgba_buffer, arg1_polygon, arg2_options) {
 		//Convert from parameters
 		let rgba_buffer = arg0_rgba_buffer;
@@ -65,6 +82,14 @@
 		return pixelWritten;
 	};
 	
+	/**
+	 * Fetches the x, y coordinate pair for a given pixel given latitude and longitude coordinates for WGS84 Equirectangular.
+	 * @alias GeoJSON.getCentroid
+	 * 
+	 * @param {Object} arg0_geometry
+	 *
+	 * @returns {number[]}
+	 */
 	GeoJSON.getCentroid = function (arg0_geometry) {
 		let geometry = arg0_geometry;
 		

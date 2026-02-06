@@ -1,9 +1,16 @@
 //Initialise functions
 {
-	if (!global.GeoNC) global.GeoNC = {};
+	if (!global.GeoNC)
+		/**
+		 * Handles NC files. Part of Geospatiale III.
+		 * 
+		 * @namespace GeoNC
+		 */
+		global.GeoNC = {};
 	
 	/**
 	 * Requires netcdfjs. Converts an .nc file to a .asc file, depending on its options.time_index and options.variable_key.
+	 * @alias GeoNC.convertToASC
 	 * 
 	 * @param {String} arg0_input_file_path
 	 * @param {String} arg1_output_file_path
@@ -106,6 +113,12 @@
 		}
 	};
 	
+	/**
+	 * Logs all variables within an `.nc` file.
+	 * @alias GeoNC.getVariables
+	 * 
+	 * @param {string} arg0_input_file_path
+	 */
 	GeoNC.getVariables = function (arg0_input_file_path) {
 		//Convert from parameters
 		let input_file_path = arg0_input_file_path;
