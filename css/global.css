@@ -32,19 +32,6 @@ html, head, body {
   background: white;
 }
 
-/* -- Tooltip styling -- */
-.tippy-box {
-  background-color: rgba(0, 0, 0, 0.85);
-  border-radius: 0px;
-  bottom: 0.25vh;
-  padding: 0.25vh;
-
-  color: white;
-  font-family: "Raleway";
-  font-weight: 300;
-  font-size: 1vh;
-}
-
 /* -- Root constants -- */
 :root {
     --geometry-selection-colour: yellow;
