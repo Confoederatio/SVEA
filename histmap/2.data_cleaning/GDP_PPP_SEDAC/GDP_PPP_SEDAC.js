@@ -11,7 +11,7 @@
 		 * 
 		 * @returns {Array<Object>}
 		 */
-		static async convertToPNGs () {
+		static async A_convertToPNGs () {
 			//Return statement
 			return GeoTIFF.convertToPNGs(`${GDP_PPP_SEDAC.input_path}/GDP_PPP_1990_2022.tif`, `${GDP_PPP_SEDAC.input_path}/GDP_PPP`, {
 				scalar: 0.01, //Make sure that GeoPNG is in $100s

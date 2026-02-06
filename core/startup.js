@@ -2,6 +2,7 @@
 global.child_process = require("child_process");
 global.electron = require("electron");
 global.fs = require("fs");
+global.netcdfjs = require("netcdfjs");
 global.path = require("path");
 global.polylabel = require("polylabel");
 

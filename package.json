@@ -23,7 +23,6 @@
     "Electron",
     "Node"
   ],
-  
   "build": {
     "appId": "confoederatio.naissance",
     "productName": "Naissance HGIS",
@@ -43,23 +42,27 @@
       "css/**/*",
       "gfx/**/*",
       "UF/**/*",
-      
       "main.js",
       "index.html",
       "package.json"
     ],
-
     "win": {
       "target": "nsis",
       "icon": "gfx/icons/win.ico"
     },
     "mac": {
-      "target": ["dmg", "zip"],
+      "target": [
+        "dmg",
+        "zip"
+      ],
       "category": "public.app-category.utilities",
       "icon": "icons/app-icon.icns"
     },
     "linux": {
-      "target": ["AppImage", "deb"],
+      "target": [
+        "AppImage",
+        "deb"
+      ],
       "icon": "gfx/",
       "category": "Utility"
     }
@@ -87,6 +90,7 @@
     "imports-loader": "^0.7.1",
     "jsdoc": "^4.0.5",
     "minami": "^1.2.3",
+    "netcdfjs": "^3.0.0",
     "node-blockly": "https://github.com/JC-Orozco/node-blockly.git",
     "shell": "^0.12.0",
     "snapsvg": "^0.5.1",
