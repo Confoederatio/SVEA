@@ -5,6 +5,7 @@ global.fs = require("fs");
 global.netcdfjs = require("netcdfjs");
 global.path = require("path");
 global.polylabel = require("polylabel");
+global.util = require("util");
 
 global.h1 = "./histmap/1.data_scraping/";
 global.h2 = "./histmap/2.data_cleaning/";
