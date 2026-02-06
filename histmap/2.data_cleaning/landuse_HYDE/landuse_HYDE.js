@@ -3,6 +3,8 @@
 	if (!global.landuse_HYDE) global.landuse_HYDE = {};
 	
 	global.landuse_HYDE = class {
+		static input_path_hyde
+		
 		static async A_convertToPNGs (arg0_input_folder, arg1_output_folder, arg2_options) {
 			//Convert from parameters
 			let input_folder = arg0_input_folder;
