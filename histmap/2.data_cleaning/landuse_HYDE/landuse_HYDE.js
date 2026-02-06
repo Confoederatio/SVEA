@@ -3,7 +3,8 @@
 	if (!global.landuse_HYDE) global.landuse_HYDE = {};
 	
 	global.landuse_HYDE = class {
-		static input_path_hyde
+		static input_rasters_equirectangular = `${h1}/landuse_HYDE/`;
+		static intermediate_rasters_equirectangular = `${h2}/landuse_HYDE/rasters/`;
 		
 		static async A_convertToPNGs (arg0_input_folder, arg1_output_folder, arg2_options) {
 			//Convert from parameters
@@ -12,7 +13,7 @@
 			let options = (arg2_options) ? arg2_options : {};
 			
 			//Declare local instance variables
-			let all_input_files = File.getAllFiles(input_folder);
+			let all_input_files = await File.getAllFiles(input_folder);
 			
 			//Iterate over all_input_files. Remember that HYDE entries are contained in separate directories.
 			for (let i = 0; i < all_input_files.length; i++)
@@ -30,6 +31,13 @@
 					//Convert ASC to PNG according to options
 					GeoASC.convertToPNG(all_input_files[i], `${output_folder}/${local_file_name.replace(".asc", "")}${local_suffix}.png`, options);
 				}
+		}
+		
+		static async processRasters () {
+			//1. Convert equirectangular rasters
+			await this.A_convertToPNGs(this.input_rasters_equirectangular, this.intermediate_rasters_equirectangular, {
+				mode: "number"
+			});
 		}
 	};
 }
