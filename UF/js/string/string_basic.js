@@ -8,6 +8,47 @@
 		 */
 		global.String = {};
 	
+	String.cleanStringify = function (arg0_input_object) {
+		//Convert from parameters
+		let input_object = arg0_input_object;
+		
+		//Copy without circular references
+		if (input_object && typeof input_object == "object")
+			input_object = copyWithoutCircularReferences([object], object);
+		
+		//Return statement
+		return JSON.stringify(input_object);
+		
+		//Declare sub-function
+		function copyWithoutCircularReferences (arg0_references, arg1_object) {
+			//Convert from parameters
+			let references = arg0_references;
+			let object = arg1_object;
+			
+			//Declare local instance variables
+			let clean_object = {};
+			
+			Object.keys(object).forEach(function (key) {
+				let value = object[key];
+				
+				if (value && typeof value === 'object') {
+					if (references.indexOf(value) < 0) {
+						references.push(value);
+						clean_object[key] = copyWithoutCircularReferences(references, value);
+						references.pop();
+					} else {
+						clean_object[key] = '###_Circular_###';
+					}
+				} else if (typeof value !== 'function') {
+					clean_object[key] = value;
+				}
+			});
+			
+			//Sub-return statement
+			return clean_object;
+		}
+	};
+	
 	/**
 	 * Formats an array into a string.
 	 * @alias String.formatArray
@@ -37,6 +78,14 @@
 		
 		//Return statement
 		return name_string;
+	};
+	
+	String.formatBoolean = function (arg0_input_boolean) {
+		//Convert from parameters
+		let input_boolean = arg0_input_boolean;
+		
+		//Return statement
+		return (input_boolean) ? `Yes` : `No`;
 	};
 	
 	/**
@@ -167,6 +216,43 @@
 		return typeof value;
 	};
 	
+	String.getDateFromString = function (arg0_input_string) {
+		//Convert from parameters
+		let input_string = arg0_input_string;
+		
+		//Return statement
+		return Date.parse(input_string);
+	};
+	
+	String.getNesting = function (arg0_input_string) {
+		//Convert from parameters
+		let string = arg0_input_string;
+		
+		//Declare local instance variables
+		let first_character = "";
+		let nesting = 0;
+		let spaces_until_first_character = 0;
+		
+		//Iterate over string to count the number of spaces to the next character
+		for (let i = 0; i < string.length; i++) {
+			if (string[i] === " ") {
+				spaces_until_first_character++;
+			} else {
+				if (first_character === "")
+					first_character = string[i];
+			}
+			
+			//Break once non-space is found
+			if (first_character !== "") break;
+		}
+		
+		if (first_character === "-")
+			nesting = Math.ceil(spaces_until_first_character/2);
+		
+		//Return statement
+		return nesting;
+	};
+	
 	/**
 	 * Returns spreadsheet formatted coords (i.e. 'A1', 'ZZ15') given a numeric coords pair (1-indexed).
 	 * @alias String.getSpreadsheetCell
@@ -241,6 +327,119 @@
 		if (n_a === 3 && n_b !== 13)
 			return `${negative_suffix}${number}rd`;
 		return `${negative_suffix}${number}th`;
+	};
+	
+	String.parseEuropeanNumber = function (arg0_string) {
+		// Convert from parameters
+		let string = arg0_string;
+		
+		// Guard clause if number is not a string
+		if (typeof string !== "string") return string;
+		
+		// Remove all non-numeric characters except . and ,
+		let normalised_input = string.trim().replace(/[^0-9.,-]/g, "");
+		
+		// Remove all dots (thousands separators)
+		normalised_input = normalised_input.replace(/\./g, "");
+		
+		// Replace the last comma with a dot (decimal separator)
+		let lastCommaIndex = normalised_input.lastIndexOf(",");
+		if (lastCommaIndex !== -1) {
+			normalised_input =
+				normalised_input.substring(0, lastCommaIndex) +
+				"." +
+				normalised_input.substring(lastCommaIndex + 1);
+		}
+		
+		let parsed_number = parseFloat(normalised_input);
+		
+		// Return statement
+		return parsed_number;
+	};
+	
+	String.parseList = function (arg0_input_list) {
+		//Convert from parameters
+		let name_array = arg0_input_list;
+		
+		//Declare local instance variables
+		let name_string = "";
+		
+		//Modify ending
+		if (name_array.length > 2) {
+			name_array[name_array.length - 1] = `and ${name_array[name_array.length-1]}`;
+			name_string = name_array.join(", ");
+		} else if (name_array.length === 2) {
+			name_array[name_array.length - 1] = `and ${name_array[name_array.length-1]}`;
+			name_string = name_array.join(" ");
+		} else {
+			name_string = name_array[0];
+		}
+		
+		//Return statement
+		return name_string;
+	};
+	
+	String.processOrdinalString = function (arg0_input_string) {
+		//Convert from parameters
+		let input_string = arg0_input_string;
+		
+		//Declare local instance variables
+		let current_string = input_string.toString().trim();
+		let trim_patterns = [
+			[/  /gm, " "],
+			[" . ", ". "],
+			[/^M{0,3}(CM|CD|D?C{0,3})(XC|XL|L?X{0,3})(IX|IV|V?I{0,3}) [a-z]*/gm]
+		];
+		let alphabet = "abcdefghijklmnopqrstuvwxyz";
+		for (var i = 0; i < alphabet.split("").length; i++) {
+			trim_patterns.push([` ${alphabet.split("")[i]} `, `${alphabet.split("")[i]} `]);
+		}
+		
+		//Trim out, well, trim patterns
+		for (let i = 0; i < trim_patterns.length; i++)
+			if (trim_patterns[i].length > 1) {
+				current_string = current_string.replace(trim_patterns[i][0], trim_patterns[i][1]);
+			} else {
+				let current_roman_array = current_string.match(trim_patterns[i][0]);
+				if (current_roman_array !== null) {
+					current_string = current_string.replace(current_roman_array[0], current_roman_array[0].split(" ").join(" "));
+				}
+			}
+		
+		//Return statement
+		return current_string;
+	}
+	
+	String.prototype.capitalise = function () {
+		//Declare local instance variables
+		let separate_words = this.split(" ");
+		
+		//Iterate over separate_words to capitalise them
+		for (let i = 0; i < separate_words.length; i++) {
+			separate_words[i] = separate_words[i].charAt(0).toUpperCase();
+			separate_words[i].substring(1);
+		}
+		
+		//Return statement
+		return separate_words.join(" ");
+	};
+	
+	String.prototype.equalsIgnoreCase = function (arg0_string) {
+		//Convert from parameters
+		let ot_string = arg0_string;
+		
+		//Return statement
+		return (this.toLowerCase() === ot_string.toLowerCase());
+	};
+	
+	String.prototype.formalise = function (arg0_input_string) {
+		//Return statement
+		return this.replace(/_/g, " ").replace(/(^\w{1})|(\s{1}\w{1})/g, (match) => match.toUpperCase());
+	};
+	
+	String.prototype.isImage = function () {
+		//Return statement
+		return /^https?:\/\/.+\.(jpg|jpeg|png|webp|avif|gif|svg)$/.test(this);
 	};
 	
 	/**
