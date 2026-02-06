@@ -26,5 +26,32 @@
 				});
 			}
 		}
+		
+		static async B_convertASCsToPNGs (arg0_input_folder, arg1_output_folder, arg2_options) {
+			//Convert from parameters
+			let input_folder = arg0_input_folder;
+			let output_folder = arg1_output_folder;
+			let options = (arg2_options) ? arg2_options : {};
+				options.is_sedac = true; //IMPORTANT! Divides all values by /100 (i.e. GDP PPP) for options.mode = 'number'.
+			if (options.is_sedac_convert_intl_dollars === undefined) options.is_sedac_convert_intl_dollars = true;
+			
+			//Declare local instance Variables
+			let all_input_files = FileManager.getAllFiles(input_folder);
+			
+			//Iterate over all_input_files with SEDAC_ prefix
+			for (let i = 0; i < all_input_files.length; i++) {
+				let local_split_path = all_input_files[i].split("\\");
+				
+				let local_file_name = local_split_path[local_split_path.length - 1];
+				
+				if (local_file_name.startsWith("SEDAC") && local_file_name.endsWith(".asc")) {
+					let local_suffix = (options.mode === "percentage") ?
+						`_percentage` : `_number`;
+					
+					//Convert ASC to PNG accordidng to options
+					GeoASC.convertToPNG(all_input_files[i], `${output_folder}/${local_file_name.replace(".asc", "")}${local_suffix}.png`, options);
+				}
+			}
+		}
 	};
 }
