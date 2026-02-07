@@ -2,7 +2,15 @@
 {
 	if (!global.String) global.String = {};
 	
-	String.prototype.split = function (arg0_index) {
+	/**
+	 * Splits a string in two based on a character index. Returns a string[] with a length of 2.
+	 * @alias String.prototype.splitIndex
+	 * 
+	 * @param {number} arg0_index
+	 * 
+	 * @returns {string[]}
+	 */
+	String.prototype.splitIndex = function (arg0_index) {
 		//Convert from parameters
 		let index = Math.returnSafeNumber(arg0_index, 200);
 		
@@ -10,10 +18,25 @@
 		return [this.slice(0, index), this.slice(index)];
 	};
 	
+	/**
+	 * Splits a string according to Markdown, preserving lists, with \n as breakpoints.
+	 * @alias String.prototype.splitMarkdown
+	 * 
+	 * @param {string} arg0_input_string
+	 * @param {Object} [arg1_options]
+	 *  @param {number} [arg1_options.maximum_characters=1024]
+	 *  @param {number} [arg1_options.maximum_lines]
+	 *  @param {boolean} [arg1_options.split_bullet_points] - Whether to try and keep boolean points together.
+	 * 
+	 * @returns {string[]}
+	 */
 	String.prototype.splitMarkdown = function (arg0_input_string, arg1_options) {
 		//Convert from parameters
 		let input_string = arg0_input_string;
 		let options = (arg1_options) ? arg1_options : {};
+		
+		//Initialise options
+		options.maximum_characters = Math.returnSafeNumber(options.maximum_characters, 1024);
 		
 		//Declare local instance variables
 		let all_strings = [];
@@ -37,7 +60,7 @@
 						next_element_length = array_string[i].length;
 					
 					if (array_string[i].startsWith("- ") ||
-						(local_joined_string.join("\n").length + next_element_length > Math.ceil(options.maximum_characters / 1.5)) ||
+						(local_joined_string.join("\n").length + next_element_length > Math.ceil(options.maximum_characters/1.5)) ||
 						i === array_string.length - 1
 					) {
 						if (i === array_string.length - 1)
@@ -120,6 +143,14 @@
 		} catch (e) {}
 	};
 	
+	/**
+	 * Splits a string equally by character count.
+	 * @alias String.prototype.split
+	 * 
+	 * @param {number} [arg0_length=200]
+	 * 
+	 * @returns {string[]}
+	 */
 	String.prototype.split = function (arg0_length) {
 		//Convert from parameters
 		let length = Math.returnSafeNumber(arg0_length, 200);
@@ -142,6 +173,15 @@
 		return string_array;
 	};
 	
+	/**
+	 * Truncates a string after a given max. character length.
+	 * @alias String.prototype.truncate
+	 * 
+	 * @param {number} [arg0_length=80]
+	 * @param {boolean} arg1_do_not_show_dots
+	 * 
+	 * @returns {string}
+	 */
 	String.prototype.truncate = function (arg0_length, arg1_do_not_show_dots) {
 		//Convert from parameters
 		let number = (arg0_length) ? arg0_length : 80;
