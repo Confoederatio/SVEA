@@ -8,6 +8,14 @@
 		 */
 		global.String = {};
 	
+	/**
+	 * Cleans an input object to be compatible with JSON.stringify().
+	 * @alias String.cleanStringify
+	 * 
+	 * @param {Object} arg0_input_object
+	 * 
+	 * @returns {string}
+	 */
 	String.cleanStringify = function (arg0_input_object) {
 		//Convert from parameters
 		let input_object = arg0_input_object;
@@ -52,7 +60,6 @@
 	/**
 	 * Formats an array into a string.
 	 * @alias String.formatArray
-	 * @memberof String
 	 * 
 	 * @param {Array} arg0_array
 	 * 
@@ -80,6 +87,14 @@
 		return name_string;
 	};
 	
+	/**
+	 * Returns a human-readable version of a boolean.
+	 * @alias String.formatBoolean
+	 * 
+	 * @param {boolean} arg0_input_boolean
+	 * 
+	 * @returns {string}
+	 */
 	String.formatBoolean = function (arg0_input_boolean) {
 		//Convert from parameters
 		let input_boolean = arg0_input_boolean;
@@ -114,7 +129,6 @@
 	/**
 	 * Formats a date length into a string given a number of seconds.
 	 * @alias String.formatDateLength
-	 * @memberof String
 	 * 
 	 * @param {number} arg0_seconds
 	 * 
@@ -139,7 +153,6 @@
 	/**
 	 * Formats an object as a given string.
 	 * @alias String.formatObject
-	 * @memberof String
 	 * 
 	 * @param {Object} arg0_object
 	 * 
@@ -171,7 +184,6 @@
 	/**
 	 * Formats a number based off of the selected locale, rounding it to the specified number of places.
 	 * @alias String.formatNumber
-	 * @memberof String
 	 * 
 	 * @param {number} arg0_number
 	 * @param {number} [arg1_places=0]
@@ -193,7 +205,6 @@
 	/**
 	 * Formats the type name of a given value based off its actual JS type.
 	 * @alias String.formatTypeName
-	 * @memberof String
 	 * 
 	 * @param {any} arg0_value
 	 * 
@@ -214,43 +225,6 @@
 		}
 		if (value.constructor && value.constructor.name) return value.constructor.name;
 		return typeof value;
-	};
-	
-	String.getDateFromString = function (arg0_input_string) {
-		//Convert from parameters
-		let input_string = arg0_input_string;
-		
-		//Return statement
-		return Date.parse(input_string);
-	};
-	
-	String.getNesting = function (arg0_input_string) {
-		//Convert from parameters
-		let string = arg0_input_string;
-		
-		//Declare local instance variables
-		let first_character = "";
-		let nesting = 0;
-		let spaces_until_first_character = 0;
-		
-		//Iterate over string to count the number of spaces to the next character
-		for (let i = 0; i < string.length; i++) {
-			if (string[i] === " ") {
-				spaces_until_first_character++;
-			} else {
-				if (first_character === "")
-					first_character = string[i];
-			}
-			
-			//Break once non-space is found
-			if (first_character !== "") break;
-		}
-		
-		if (first_character === "-")
-			nesting = Math.ceil(spaces_until_first_character/2);
-		
-		//Return statement
-		return nesting;
 	};
 	
 	/**
@@ -329,20 +303,28 @@
 		return `${negative_suffix}${number}th`;
 	};
 	
+	/**
+	 * Parses a European number string to a number.
+	 * @alias String.parseEuropeanNumber
+	 * 
+	 * @param {string} arg0_string
+	 *
+	 * @returns {number|string}
+	 */
 	String.parseEuropeanNumber = function (arg0_string) {
-		// Convert from parameters
+		//Convert from parameters
 		let string = arg0_string;
 		
-		// Guard clause if number is not a string
+		//Guard clause if number is not a string
 		if (typeof string !== "string") return string;
 		
-		// Remove all non-numeric characters except . and ,
+		//Remove all non-numeric characters except . and ,
 		let normalised_input = string.trim().replace(/[^0-9.,-]/g, "");
 		
-		// Remove all dots (thousands separators)
+		//Remove all dots (thousands separators)
 		normalised_input = normalised_input.replace(/\./g, "");
 		
-		// Replace the last comma with a dot (decimal separator)
+		//Replace the last comma with a dot (decimal separator)
 		let lastCommaIndex = normalised_input.lastIndexOf(",");
 		if (lastCommaIndex !== -1) {
 			normalised_input =
@@ -351,12 +333,18 @@
 				normalised_input.substring(lastCommaIndex + 1);
 		}
 		
-		let parsed_number = parseFloat(normalised_input);
-		
-		// Return statement
-		return parsed_number;
+		//Return statement
+		return parseFloat(normalised_input);
 	};
 	
+	/**
+	 * Parses a list into human-readable form.
+	 * @alias String.parseList
+	 * 
+	 * @param {string[]} arg0_input_list
+	 * 
+	 * @returns {string}
+	 */
 	String.parseList = function (arg0_input_list) {
 		//Convert from parameters
 		let name_array = arg0_input_list;
@@ -379,12 +367,116 @@
 		return name_string;
 	};
 	
-	String.processOrdinalString = function (arg0_input_string) {
-		//Convert from parameters
-		let input_string = arg0_input_string;
-		
+	/**
+	 * Capitalises all the words in a string.
+	 * @alias String.capitalise
+	 * 
+	 * @returns {string}
+	 */
+	String.prototype.capitalise = function () {
 		//Declare local instance variables
-		let current_string = input_string.toString().trim();
+		let separate_words = this.split(" ");
+		
+		//Iterate over separate_words to capitalise them
+		for (let i = 0; i < separate_words.length; i++) {
+			separate_words[i] = separate_words[i].charAt(0).toUpperCase();
+			separate_words[i].substring(1);
+		}
+		
+		//Return statement
+		return separate_words.join(" ");
+	};
+	
+	/**
+	 * Compares two strings, ignoring their case. Returns a boolean.
+	 * @alias String.equalsIgnoreCase
+	 * 
+	 * @param {string} arg0_string - The other string to compare with.
+	 * 
+	 * @returns {boolean}
+	 */
+	String.prototype.equalsIgnoreCase = function (arg0_string) {
+		//Convert from parameters
+		let ot_string = arg0_string;
+		
+		//Return statement
+		return (this.toLowerCase() === ot_string.toLowerCase());
+	};
+	
+	/**
+	 * Returns a string timestamp of a contemporary date.
+	 * @alias String.getDate
+	 *
+	 * @returns {Date}
+	 */
+	String.prototype.getDate = function () {
+		//Return statement
+		return Date.parse(this);
+	};
+	
+	/**
+	 * Fetches the amount of nesting embedded within the current string.
+	 * @alias String.getNesting
+	 * 
+	 * @returns {number}
+	 */
+	String.prototype.getNesting = function () {
+		//Declare local instance variables
+		let first_character = "";
+		let nesting = 0;
+		let spaces_until_first_character = 0;
+		
+		//Iterate over string to count the number of spaces to the next character
+		for (let i = 0; i < this.length; i++) {
+			if (this[i] === " ") {
+				spaces_until_first_character++;
+			} else {
+				if (first_character === "")
+					first_character = this[i];
+			}
+			
+			//Break once non-space is found
+			if (first_character !== "") break;
+		}
+		
+		if (first_character === "-")
+			nesting = Math.ceil(spaces_until_first_character/2);
+		
+		//Return statement
+		return nesting;
+	};
+	
+	/**
+	 * Formalises a debug string into human-readable text. Returns a string.
+	 * @alias String.formalise
+	 * 
+	 * @returns {string}
+	 */
+	String.prototype.formalise = function () {
+		//Return statement
+		return this.replace(/_/g, " ").replace(/(^\w{1})|(\s{1}\w{1})/g, (match) => match.toUpperCase());
+	};
+	
+	/**
+	 * Checks if the given link is that of a compatible image.
+	 * @alias String.isImage
+	 * 
+	 * @returns {boolean}
+	 */
+	String.prototype.isImage = function () {
+		//Return statement
+		return /^https?:\/\/.+\.(jpg|jpeg|png|webp|avif|gif|svg)$/.test(this);
+	};
+	
+	/**
+	 * Fetches the current ordinal present in a numeric string.
+	 * @alias String.processOrdinal
+	 * 
+	 * @returns {string}
+	 */
+	String.prototype.processOrdinal = function () {
+		//Declare local instance variables
+		let current_string = this.toString().trim();
 		let trim_patterns = [
 			[/  /gm, " "],
 			[" . ", ". "],
@@ -408,44 +500,11 @@
 		
 		//Return statement
 		return current_string;
-	}
-	
-	String.prototype.capitalise = function () {
-		//Declare local instance variables
-		let separate_words = this.split(" ");
-		
-		//Iterate over separate_words to capitalise them
-		for (let i = 0; i < separate_words.length; i++) {
-			separate_words[i] = separate_words[i].charAt(0).toUpperCase();
-			separate_words[i].substring(1);
-		}
-		
-		//Return statement
-		return separate_words.join(" ");
-	};
-	
-	String.prototype.equalsIgnoreCase = function (arg0_string) {
-		//Convert from parameters
-		let ot_string = arg0_string;
-		
-		//Return statement
-		return (this.toLowerCase() === ot_string.toLowerCase());
-	};
-	
-	String.prototype.formalise = function (arg0_input_string) {
-		//Return statement
-		return this.replace(/_/g, " ").replace(/(^\w{1})|(\s{1}\w{1})/g, (match) => match.toUpperCase());
-	};
-	
-	String.prototype.isImage = function () {
-		//Return statement
-		return /^https?:\/\/.+\.(jpg|jpeg|png|webp|avif|gif|svg)$/.test(this);
 	};
 	
 	/**
 	 * Truncates a string to a given length, appending the ellipsis afterwards.
 	 * @alias String.prototype.truncate
-	 * @memberof String
 	 * 
 	 * @param {string} arg0_number
 	 * @param {string} [arg1_ellipsis=" ..."]
