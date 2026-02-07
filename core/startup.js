@@ -4,6 +4,7 @@ global.electron = require("electron");
 global.fs = require("fs");
 global.netcdfjs = require("netcdfjs");
 global.path = require("path");
+global.pngjs = require("pngjs");
 global.polylabel = require("polylabel");
 global.util = require("util");
 
