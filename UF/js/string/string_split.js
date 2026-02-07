@@ -12,33 +12,35 @@
 	
 	String.prototype.splitMarkdown = function (arg0_input_string, arg1_options) {
 		//Convert from parameters
-		var input_string = arg0_input_string;
-		var options = (arg1_options) ? arg1_options : {};
+		let input_string = arg0_input_string;
+		let options = (arg1_options) ? arg1_options : {};
 		
 		//Declare local instance variables
-		var all_strings = [];
-		var array_string = (!Array.isArray(input_string)) ? Array.toArray(input_string.split("\n")) : input_string;
+		let all_strings = [];
+		let array_string = (!Array.isArray(input_string)) ? Array.toArray(input_string.split("\n")) : input_string;
+		let local_array_string = [];
 		
 		//Error trapping
+		let local_indices_to_remove;
 		try {
 			//Join all bullet point blocks together
-			var new_array_string = [];
+			let new_array_string = [];
 			
 			if (!options.split_bullet_points) {
-				var local_joined_string = [];
-				var local_starting_element = -1;
+				let local_joined_string = [];
+				let local_starting_element = -1;
 				
-				for (var i = 0; i < array_string.length; i++) {
-					var next_element_length = 0;
+				for (let i = 0; i < array_string.length; i++) {
+					let next_element_length = 0;
 					
 					if (array_string[i + 1])
 						next_element_length = array_string[i].length;
 					
 					if (array_string[i].startsWith("- ") ||
-						(local_joined_string.join("\n").length + next_element_length > Math.ceil(options.maximum_characters/1.5)) ||
-						i == array_string.length - 1
+						(local_joined_string.join("\n").length + next_element_length > Math.ceil(options.maximum_characters / 1.5)) ||
+						i === array_string.length - 1
 					) {
-						if (i == array_string.length - 1)
+						if (i === array_string.length - 1)
 							local_joined_string.push(array_string[i]);
 						
 						//Set local_joined_string
@@ -58,15 +60,13 @@
 			
 			if (!options.maximum_lines) {
 				//Split text based on characters
-				for (var i = 0; i < array_string.length; i++) {
-					var added_line = false;
-					var bullets = "";
-					var hit_maximum = false;
-					var nesting = getNesting(array_string[i]);
+				for (let i = 0; i < array_string.length; i++) {
+					let added_line = false;
+					let bullets = "";
+					let hit_maximum = false;
+					let nesting = array_string[i].getNesting();
 					
-					if (
-						local_array_string.join("\n").length + array_string[i].length <= maximum_characters_per_array
-					) {
+					if (local_array_string.join("\n").length + array_string[i].length <= options.maximum_characters_per_array) {
 						local_array_string.push(array_string[i]);
 						added_line = true;
 					} else {
@@ -74,10 +74,10 @@
 					}
 					
 					//Adjust bullet points if off
-					if (nesting == 1)
+					if (nesting === 1)
 						bullets = "- "
 					if (nesting >= 1) {
-						for (var x = 0; x < nesting; x++)
+						for (let x = 0; x < nesting; x++)
 							bullets += " - ";
 						
 						array_string[i] = array_string[i].split(" - ");
@@ -88,30 +88,26 @@
 						array_string[i] = `${bullets} ${array_string[i].join(" - ")}`;
 					}
 					
-					if (i != 0 || array_string.length == 1)
-						if (
-							(i == array_string.length - 1 &&
-								
-								//Check to see that string is not empty
-								local_array_string.join("\n").length > 0) ||
-							hit_maximum
-						) {
+					if (i !== 0 || array_string.length === 1)
+						if ((i === array_string.length - 1 &&
+							//Check to see that string is not empty
+							local_array_string.join("\n").length > 0
+						) || hit_maximum) {
 							//Push to all_strings
 							all_strings.push(local_array_string.join("\n"));
 							local_array_string = [];
 							
 							//Maximum safeguard to prevent max call stack size
-							if (hit_maximum)
-								i--; //Potentially leads to a fatal crash
+							if (hit_maximum) i--; //Potentially leads to a fatal crash
 						}
 				}
 			} else {
 				//Split embeds based on lines
-				for (var i = 0; i < array_string.length; i++) {
+				for (let i = 0; i < array_string.length; i++) {
 					local_array_string.push(array_string[i]);
 					
-					if (i != 0 || array_string.length == 1)
-						if (i % options.maximum_lines == 0 || i == array_string.length - 1) {
+					if (i !== 0 || array_string.length === 1)
+						if (i % options.maximum_lines === 0 || i === array_string.length - 1) {
 							//Push to all_strings
 							all_strings.push(local_array_string.join("\n"));
 							local_array_string = [];
@@ -121,8 +117,8 @@
 			
 			//Return statement
 			return all_strings;
-		} catch {}
-	}
+		} catch (e) {}
+	};
 	
 	String.prototype.split = function (arg0_length) {
 		//Convert from parameters

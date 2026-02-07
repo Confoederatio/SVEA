@@ -369,7 +369,7 @@
 	
 	/**
 	 * Capitalises all the words in a string.
-	 * @alias String.capitalise
+	 * @alias String.prototype.capitalise
 	 * 
 	 * @returns {string}
 	 */
@@ -389,7 +389,7 @@
 	
 	/**
 	 * Compares two strings, ignoring their case. Returns a boolean.
-	 * @alias String.equalsIgnoreCase
+	 * @alias String.prototype.equalsIgnoreCase
 	 * 
 	 * @param {string} arg0_string - The other string to compare with.
 	 * 
@@ -405,7 +405,7 @@
 	
 	/**
 	 * Returns a string timestamp of a contemporary date.
-	 * @alias String.getDate
+	 * @alias String.prototype.getDate
 	 *
 	 * @returns {Date}
 	 */
@@ -416,7 +416,7 @@
 	
 	/**
 	 * Fetches the amount of nesting embedded within the current string.
-	 * @alias String.getNesting
+	 * @alias String.prototype.getNesting
 	 * 
 	 * @returns {number}
 	 */
@@ -448,7 +448,7 @@
 	
 	/**
 	 * Formalises a debug string into human-readable text. Returns a string.
-	 * @alias String.formalise
+	 * @alias String.prototype.formalise
 	 * 
 	 * @returns {string}
 	 */
@@ -459,7 +459,7 @@
 	
 	/**
 	 * Checks if the given link is that of a compatible image.
-	 * @alias String.isImage
+	 * @alias String.prototype.isImage
 	 * 
 	 * @returns {boolean}
 	 */
@@ -470,7 +470,7 @@
 	
 	/**
 	 * Fetches the current ordinal present in a numeric string.
-	 * @alias String.processOrdinal
+	 * @alias String.prototype.processOrdinal
 	 * 
 	 * @returns {string}
 	 */

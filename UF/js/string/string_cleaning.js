@@ -2,22 +2,28 @@
 {
 	if (!global.String) global.String = {};
 	
-	String.prototype.stripMarkdown = function (arg0_input_string) {
-		//Convert from parameters
-		let input_string = arg0_input_string;
-		
+	/**
+	 * Strips markdown from a string.
+	 * @alias String.prototype.stripMarkdown
+	 * 
+	 * @returns {string}
+	 */
+	String.prototype.stripMarkdown = function () {
 		//Declare local instance variables
-		let processed_string = input_string.toString();
+		let processed_string = this.toString();
 		
 		//Return statement
 		return processed_string.replace(/(__)|(\*\*)/gm, "");
 	};
 	
-	String.prototype.stripNonNumerics = function (arg0_input_string) {
-		//Convert from parameters
-		let input_string = arg0_input_string;
-		
+	/**
+	 * Strips all non-numeric characters (0-9) from a string.
+	 * @alias String.prototype.stripNonNumerics
+	 * 
+	 * @returns {string}
+	 */
+	String.prototype.stripNonNumerics = function () {
 		//Return statement
-		return input_string.replace(/[^0-9]/g, "");
+		return this.replace(/[^0-9]/g, "");
 	};
 }
