@@ -322,4 +322,28 @@
 		//Return statement
 		return current_obj[all_keys[all_keys.length - 1]];
 	};
+	
+	/**
+	 * Casts an object to array.
+	 * @alias Object.toArray
+	 * 
+	 * @param {Object} arg0_object
+	 * 
+	 * @returns {any[]}
+	 */
+	Object.toArray = function (arg0_object) {
+		//Convert from parameters
+		let input_object = arg0_object;
+		
+		//Declare local instance variables
+		let all_object_keys = Object.keys(input_object);
+		let return_array = [];
+		
+		//Iterate over object
+		for (let i = 0; i < all_object_keys.length; i++)
+			return_array.push(input_object[all_object_keys[i]]);
+		
+		//Return statement
+		return return_array;
+	};
 }

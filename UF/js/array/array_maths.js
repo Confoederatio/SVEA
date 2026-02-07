@@ -19,8 +19,8 @@
 			return null;
 		
 		return array.reduce((closest, current) => {
-			const currentDiff = Math.abs(current - value);
-			const closestDiff = Math.abs(closest - value);
+			let currentDiff = Math.abs(current - value);
+			let closestDiff = Math.abs(closest - value);
 			
 			return (currentDiff < closestDiff) ? current : closest;
 		});
@@ -131,5 +131,40 @@
 		
 		//Return statement
 		return min_value;
+	};
+	
+	/**
+	 * Applies a mathematical equation to every element of an array, recursively.
+	 * 
+	 * @param {any[]} arg0_array
+	 * @param {string} arg1_equation - The string literal to use as an equation.<br>- 'n' represents the current array element.
+	 * @returns {any[]}
+	 */
+	Array.operate = function (arg0_array, arg1_equation) {
+		//Convert from parameters
+		let array = Array.toArray(arg0_array);
+		let equation = arg1_equation;
+		
+		//Guard clause if input is not array
+		if (!Array.isArray(array)) return array;
+		
+		//Declare local instance variables
+		let equation_expression = `return ${equation};`;
+		let equation_function = new Function("n", equation_expression);
+		
+		//Return statement; recursively process each element of the array
+		return array.map((element) => {
+			if (Array.isArray(element)) {
+				//Recursively call operateArray() if subarray is found
+				return Array.operate(element, equation);
+			} else {
+				if (!isNaN(element)) {
+					return equation_function(element);
+				} else {
+					//If element is not valid, return as is
+					return element;
+				}
+			}
+		});
 	};
 }
