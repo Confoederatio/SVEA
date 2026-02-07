@@ -3,6 +3,36 @@
 	if (!global.String) global.String = {};
 	
 	/**
+	 * Splits a string equally by character count.
+	 * @alias String.prototype.splitByCharacterCount
+	 *
+	 * @param {number} [arg0_length=200]
+	 *
+	 * @returns {string[]}
+	 */
+	String.prototype.splitByCharacterCount = function (arg0_length) {
+		//Convert from parameters
+		let length = Math.returnSafeNumber(arg0_length, 200);
+		
+		//Declare local instance variables
+		let current_string = "";
+		let string_array = [];
+		
+		//Process string
+		for (let i = 0; i < this.length; i++) {
+			current_string += this[i];
+			
+			if ((i % length === 0 || i === this.length - 1) && i !== 0) {
+				string_array.push(current_string);
+				current_string = "";
+			}
+		}
+		
+		//Return statement
+		return string_array;
+	};
+	
+	/**
 	 * Splits a string in two based on a character index. Returns a string[] with a length of 2.
 	 * @alias String.prototype.splitIndex
 	 * 
@@ -141,36 +171,6 @@
 			//Return statement
 			return all_strings;
 		} catch (e) {}
-	};
-	
-	/**
-	 * Splits a string equally by character count.
-	 * @alias String.prototype.split
-	 * 
-	 * @param {number} [arg0_length=200]
-	 * 
-	 * @returns {string[]}
-	 */
-	String.prototype.split = function (arg0_length) {
-		//Convert from parameters
-		let length = Math.returnSafeNumber(arg0_length, 200);
-		
-		//Declare local instance variables
-		let current_string = "";
-		let string_array = [];
-		
-		//Process string
-		for (let i = 0; i < this.length; i++) {
-			current_string += this[i];
-			
-			if ((i % length === 0 || i === this.length - 1) && i !== 0) {
-				string_array.push(current_string);
-				current_string = "";
-			}
-		}
-		
-		//Return statement
-		return string_array;
 	};
 	
 	/**
