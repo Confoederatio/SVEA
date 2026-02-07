@@ -6,10 +6,10 @@
 	 * Appends two dataframes to one another.
 	 * @alias Array.appendDataframes
 	 * 
-	 * @param {Array.<any[]>} arg0_dataframe
-	 * @param {Array.<any[]>} arg1_dataframe
+	 * @param {Array.<any[]>} arg0_dataframe - The dataframe to input into the function.
+	 * @param {Array.<any[]>} arg1_dataframe - The dataframe to append.
 	 * @param {Object} [arg2_options]
-	 *  @param {any} [arg2_options.default_value]
+	 *  @param {any} [arg2_options.default_value] - Optional. What the default variable should be.
 	 * 
 	 * @returns {Array.<any[]>}
 	 */
@@ -50,7 +50,7 @@
 	 * Converts a dataframe to an object.
 	 * @alias Array.convertDataframeToObject
 	 * 
-	 * @param {Array.<any[]>} arg0_dataframe
+	 * @param {Array.<any[]>} arg0_dataframe - The dataframe to convert to an object
 	 * 
 	 * @returns {any[]}
 	 */
@@ -87,7 +87,7 @@
 	 * Converts a given object to a dataframe.
 	 * @alias Array.convertObjectToDataframe
 	 * 
-	 * @param {Object} arg0_dataframe_obj
+	 * @param {Object} arg0_dataframe_obj - The object to convert into a dataframe.
 	 * 
 	 * @returns {Array.<any[]>}
 	 */
@@ -129,7 +129,7 @@
 	 * Fetches the number of columns in a given dataframe.
 	 * @alias Array.getColumns
 	 * 
-	 * @param {Object} arg0_dataframe
+	 * @param {Object} arg0_dataframe - The dataframe to pass to the function.
 	 * 
 	 * @returns {number}
 	 */
@@ -172,7 +172,7 @@
 	 * Fetches the number of rows in a dataframe.
 	 * @alias Array.getRows
 	 * 
-	 * @param {Array.<any[]>} arg0_dataframe
+	 * @param {Array.<any[]>} arg0_dataframe - The dataframe to pass to the function.
 	 * 
 	 * @returns {number}
 	 */
@@ -188,7 +188,7 @@
 	 * Checks whether a dataframe has a true header.
 	 * @alias Array.getHeader
 	 * 
-	 * @param {Array.<any[]>} arg0_dataframe
+	 * @param {Array.<any[]>} arg0_dataframe - The dataframe to pass to the function.
 	 * 
 	 * @returns {boolean}
 	 */
@@ -221,23 +221,12 @@
 	 * 
 	 * Dataframes are a 2D array, typically with a header row.
 	 * 
-	 * arg0_dataframe: ({@link Array}<{@link Array}, ...>) - The 1st dataframe to pass to the function.
-	 * arg1_dataframe: ({@link Array}<{@link Array}, ...>) - The 2nd dataframe to pass to the function.
-	 * arg2_options: {@link Object}
-	 * - equation: {@link string} - The string literal to use as an equation (e.g. 'i + x*5'). If no equal sign is provided, this applies to every cell, regardless of column. Equations are split by semicolons.
-	 * - 
-	 * - As an example, x$D = i$B, replaces the D column of the 2nd dataframe with the B column of the 1st.
-	 *   - 'i' represents the corresponding element of the first dataframe,
-	 *     - 'i$Column' represents the selection of a 1st dataframe column named 'Column'.
-	 *   - 'x' represents the corresponding element of the second dataframe,
-	 *     - 'x$Column' represents the selection of a 2nd dataframe column named 'Column'.
-	 * 
 	 * @alias Array.mergeDataframes
 	 * 
-	 * @param {Array.<any[]>} arg0_dataframe
-	 * @param {Array.<any[]>} arg1_dataframe
+	 * @param {Array.<any[]>} arg0_dataframe - The 1st dataframe to pass to the function.
+	 * @param {Array.<any[]>} arg1_dataframe - The 2nd dataframe to pass to the function.
 	 * @param {Object} [arg2_options]
-	 *  @param {string} [arg2_options.equation]
+	 *  @param {string} [arg2_options.equation] - The string literal to use as an equation (e.g. 'i + x*5'). If no equal sign is provided, this applies to every cell, regardless of column. Equations are split by semicolons.<br>- <br>As an example, x$D = i$B, replaces the D column of the 2nd dataframe with the B column of the 1st.<br>- 'i' represents the corresponding element of the first dataframe,<br>  - 'i$Column' represents the selection of a 1st dataframe column named 'Column'.<br>- 'x' represents the corresponding element of the second dataframe,<br>  - 'x$Column' represents the selection of a 2nd dataframe column named 'Column'.
 	 * 
 	 * @returns {Array.<any[]>}
 	 */
@@ -264,24 +253,12 @@
 	
 	/**
 	 * Operates on two dataframes by applying an equation string.
-	 * 
-	 * arg0_dataframe: {@link Array}<{@link Array}, ...> - The 1st dataframe to operate on as i.
-	 * arg1_dataframe: {@link Array}<{@link Array}, ...> - The 2nd dataframe to operate on as x.
-	 * arg2_options: {@link Object}
-	 * - equation: {@link string} - The string literal to use as an equation (e.g. 'i + x*5'). If no equal sign is provided, this applies to every cell, regardless of column. Equations split by semicolons.
-	 * - 
-	 * - As an example, x$D = i$B, replaces the D column of the 2nd dataframe with the B column of the 1st.
-	 *   - 'i' represents the corresponding element of the first dataframe,
-	 *     - 'i$Column' represents the selection of a 1st dataframe column named 'Column'.
-	 *   - 'x' represents the corresponding element of the second dataframe,
-	 *     - 'x$Column' represents the selection of a 2nd dataframe column named 'Column'.
-	 *     
 	 * @alias Array.operateDataframes
 	 * 
-	 * @param {Array.<any[]>} arg0_dataframe
-	 * @param {Array.<any[]>} arg1_dataframe
+	 * @param {Array.<any[]>} arg0_dataframe - The 1st dataframe to operate on as i.
+	 * @param {Array.<any[]>} arg1_dataframe - The 2nd dataframe to operate on as x.
 	 * @param {Object} [arg2_options]
-	 *  @param {string} [arg2_options.equation]
+	 *  @param {string} [arg2_options.equation] - The string literal to use as an equation (e.g. 'i + x*5'). If no equal sign is provided, this applies to every cell, regardless of column. Equations are split by semicolons.<br>- <br>As an example, x$D = i$B, replaces the D column of the 2nd dataframe with the B column of the 1st.<br>- 'i' represents the corresponding element of the first dataframe,<br>  - 'i$Column' represents the selection of a 1st dataframe column named 'Column'.<br>- 'x' represents the corresponding element of the second dataframe,<br>  - 'x$Column' represents the selection of a 2nd dataframe column named 'Column'.
 	 * 
 	 * @returns {{dataframe: Array.<any[]>, ot_dataframe: Array.<any[]>}}
 	 */
@@ -380,10 +357,10 @@
 	 * Selects a 2D array column (by header name).
 	 * @alias Array.selectColumn
 	 * 
-	 * @param {Array.<any[]>} arg0_dataframe
-	 * @param {string} arg1_column_name
+	 * @param {Array.<any[]>} arg0_dataframe - The dataframe to pass to the function.
+	 * @param {string} arg1_column_name - The name of the variable/column to select.
 	 * @param {Object} [arg2_options]
-	 *  @param {boolean} [arg2_options.return_index=false] - Whether or not to return an index.
+	 *  @param {boolean} [arg2_options.return_index=false] - Whether to return an index.
 	 * 
 	 * @returns {boolean|number|*[]}
 	 */
@@ -431,9 +408,10 @@
 	 * Selects a 2D array row (by header name or index).
 	 * @alias Array.selectRow
 	 * 
-	 * @param {Array.<any[]>} arg0_dataframe
-	 * @param arg1_row_index
-	 * @param {Object} arg2_options
+	 * @param {Array.<any[]>} arg0_dataframe - The dataframe to pass to the function.
+	 * @param {number} arg1_row_index - The row index to pass to the function.
+	 * @param {Object} [arg2_options]
+	 *  @param {boolean} [arg2_options.exclude_header=false] - Whether to exclude the header.
 	 * 
 	 * @returns {any[]}
 	 */
@@ -451,9 +429,9 @@
 	 * Sets a 2D array column.
 	 * @alias Array.setColumn
 	 * 
-	 * @param {Array.<any[]>} arg0_dataframe
-	 * @param {string} arg1_column_name
-	 * @param {any[]} arg2_values
+	 * @param {Array.<any[]>} arg0_dataframe - The dataframe to pass to the function.
+	 * @param {string} arg1_column_name - The name of the variable/column to set.
+	 * @param {any[]} arg2_values - The list of values to set for this column.
 	 * 
 	 * @returns {any[]}
 	 */
@@ -481,9 +459,9 @@
 	 * Sets a 2D array row.
 	 * @alias Array.setRow
 	 * 
-	 * @param {Array.<any[]>} arg0_dataframe
-	 * @param {number} arg1_row_index
-	 * @param {any[]} arg2_values
+	 * @param {Array.<any[]>} arg0_dataframe - The dataframe to pass to the function.
+	 * @param {number} arg1_row_index - The row index to pass to the function.
+	 * @param {any[]} arg2_values - The list of values to set for this row.
 	 * 
 	 * @returns {any[]}
 	 */
