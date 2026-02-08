@@ -4,6 +4,7 @@ global.cubic_spline = require("cubic-spline");
 global.electron = require("electron");
 global.fs = require("fs");
 global.mathjs = require("mathjs");
+global.ml_matrix = require("ml-matrix");
 global.netcdfjs = require("netcdfjs");
 global.path = require("path");
 global.pngjs = require("pngjs");
