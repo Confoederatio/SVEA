@@ -9,6 +9,26 @@
 		global.String = {};
 	
 	/**
+	 * Capitalises all the words in a string.
+	 * @alias String.capitalise
+	 *
+	 * @returns {string}
+	 */
+	String.capitalise = function () {
+		//Declare local instance variables
+		let separate_words = this.split(" ");
+		
+		//Iterate over separate_words to capitalise them
+		for (let i = 0; i < separate_words.length; i++) {
+			separate_words[i] = separate_words[i].charAt(0).toUpperCase();
+			separate_words[i].substring(1);
+		}
+		
+		//Return statement
+		return separate_words.join(" ");
+	};
+		
+	/**
 	 * Cleans an input object to be compatible with JSON.stringify().
 	 * @alias String.cleanStringify
 	 * 
@@ -55,6 +75,38 @@
 			//Sub-return statement
 			return clean_object;
 		}
+	};
+	
+	/**
+	 * Compares two strings, ignoring their case. Returns a boolean.
+	 * @alias String.equalsIgnoreCase
+	 *
+	 * @param {string} arg0_string - The string to compare with.
+	 * @param {string} arg1_string - The other string to compare with.
+	 *
+	 * @returns {boolean}
+	 */
+	String.equalsIgnoreCase = function (arg0_string, arg1_string) {
+		//Convert from parameters
+		let string = arg0_string;
+		let ot_string = arg1_string;
+		
+		//Return statement
+		return (string.toLowerCase() === ot_string.toLowerCase());
+	};
+	
+	/**
+	 * Formalises a debug string into human-readable text. Returns a string.
+	 * @alias String.formalise
+	 *
+	 * @returns {string}
+	 */
+	String.formalise = function (arg0_string) {
+		//Convert from parameters
+		let string = arg0_string;
+		
+		//Return statement
+		return string.replace(/_/g, " ").replace(/(^\w{1})|(\s{1}\w{1})/g, (match) => match.toUpperCase());
 	};
 	
 	/**
@@ -228,6 +280,59 @@
 	};
 	
 	/**
+	 * Returns a string timestamp of a contemporary date.
+	 * @alias String.prototype.getDate
+	 *
+	 * @param {string} arg0_string
+	 *
+	 * @returns {Date}
+	 */
+	String.getDate = function (arg0_string) {
+		//Convert from parameters
+		let string = arg0_string;
+		
+		//Return statement
+		return Date.parse(string);
+	};
+	
+	/**
+	 * Fetches the amount of nesting embedded within the current string.
+	 * @alias String.prototype.getNesting
+	 *
+	 * @param {string} arg0_string
+	 *
+	 * @returns {number}
+	 */
+	String.getNesting = function (arg0_string) {
+		//Convert from parameters
+		let string = arg0_string;
+		
+		//Declare local instance variables
+		let first_character = "";
+		let nesting = 0;
+		let spaces_until_first_character = 0;
+		
+		//Iterate over string to count the number of spaces to the next character
+		for (let i = 0; i < string.length; i++) {
+			if (string[i] === " ") {
+				spaces_until_first_character++;
+			} else {
+				if (first_character === "")
+					first_character = string[i];
+			}
+			
+			//Break once non-space is found
+			if (first_character !== "") break;
+		}
+		
+		if (first_character === "-")
+			nesting = Math.ceil(spaces_until_first_character/2);
+		
+		//Return statement
+		return nesting;
+	};
+	
+	/**
 	 * Returns spreadsheet formatted coords (i.e. 'A1', 'ZZ15') given a numeric coords pair (1-indexed).
 	 * @alias String.getSpreadsheetCell
 	 * @memberof String
@@ -273,6 +378,40 @@
 		
 		//Return statement
 		return column;
+	};
+	
+	/**
+	 * Checks if the given link is that of a compatible image.
+	 * @alias String.isImage
+	 *
+	 * @returns {boolean}
+	 */
+	String.isImage = function (arg0_string) {
+		//Convert from parameters
+		let string = arg0_string;
+		
+		//Return statement
+		return /^https?:\/\/.+\.(jpg|jpeg|png|webp|avif|gif|svg)$/.test(string);
+	};
+	
+	/**
+	 * Checks whether a given string is loosely a valid URL.
+	 * @alias String.isURL
+	 * @memberof String
+	 *
+	 * @returns {boolean}
+	 */
+	String.isURL = function (arg0_string) {
+		//Convert from parameters
+		let string = arg0_string;
+		
+		//Return statement
+		try {
+			new URL(string);
+			return true;
+		} catch (e) {
+			return false;
+		}
 	};
 	
 	/**
@@ -368,122 +507,24 @@
 	};
 	
 	/**
-	 * Capitalises all the words in a string.
-	 * @alias String.prototype.capitalise
-	 * 
-	 * @returns {string}
-	 */
-	String.prototype.capitalise = function () {
-		//Declare local instance variables
-		let separate_words = this.split(" ");
-		
-		//Iterate over separate_words to capitalise them
-		for (let i = 0; i < separate_words.length; i++) {
-			separate_words[i] = separate_words[i].charAt(0).toUpperCase();
-			separate_words[i].substring(1);
-		}
-		
-		//Return statement
-		return separate_words.join(" ");
-	};
-	
-	/**
-	 * Compares two strings, ignoring their case. Returns a boolean.
-	 * @alias String.prototype.equalsIgnoreCase
-	 * 
-	 * @param {string} arg0_string - The other string to compare with.
-	 * 
-	 * @returns {boolean}
-	 */
-	String.prototype.equalsIgnoreCase = function (arg0_string) {
-		//Convert from parameters
-		let ot_string = arg0_string;
-		
-		//Return statement
-		return (this.toLowerCase() === ot_string.toLowerCase());
-	};
-	
-	/**
-	 * Returns a string timestamp of a contemporary date.
-	 * @alias String.prototype.getDate
-	 *
-	 * @returns {Date}
-	 */
-	String.prototype.getDate = function () {
-		//Return statement
-		return Date.parse(this);
-	};
-	
-	/**
-	 * Fetches the amount of nesting embedded within the current string.
-	 * @alias String.prototype.getNesting
-	 * 
-	 * @returns {number}
-	 */
-	String.prototype.getNesting = function () {
-		//Declare local instance variables
-		let first_character = "";
-		let nesting = 0;
-		let spaces_until_first_character = 0;
-		
-		//Iterate over string to count the number of spaces to the next character
-		for (let i = 0; i < this.length; i++) {
-			if (this[i] === " ") {
-				spaces_until_first_character++;
-			} else {
-				if (first_character === "")
-					first_character = this[i];
-			}
-			
-			//Break once non-space is found
-			if (first_character !== "") break;
-		}
-		
-		if (first_character === "-")
-			nesting = Math.ceil(spaces_until_first_character/2);
-		
-		//Return statement
-		return nesting;
-	};
-	
-	/**
-	 * Formalises a debug string into human-readable text. Returns a string.
-	 * @alias String.prototype.formalise
-	 * 
-	 * @returns {string}
-	 */
-	String.prototype.formalise = function () {
-		//Return statement
-		return this.replace(/_/g, " ").replace(/(^\w{1})|(\s{1}\w{1})/g, (match) => match.toUpperCase());
-	};
-	
-	/**
-	 * Checks if the given link is that of a compatible image.
-	 * @alias String.prototype.isImage
-	 * 
-	 * @returns {boolean}
-	 */
-	String.prototype.isImage = function () {
-		//Return statement
-		return /^https?:\/\/.+\.(jpg|jpeg|png|webp|avif|gif|svg)$/.test(this);
-	};
-	
-	/**
 	 * Fetches the current ordinal present in a numeric string.
-	 * @alias String.prototype.processOrdinal
-	 * 
+	 * @alias String.processOrdinal
+	 *
 	 * @returns {string}
 	 */
-	String.prototype.processOrdinal = function () {
+	String.processOrdinal = function (arg0_string) {
+		//Convert from parameters
+		let string = arg0_string;
+		
 		//Declare local instance variables
-		let current_string = this.toString().trim();
+		let current_string = string.toString().trim();
 		let trim_patterns = [
 			[/  /gm, " "],
 			[" . ", ". "],
 			[/^M{0,3}(CM|CD|D?C{0,3})(XC|XL|L?X{0,3})(IX|IV|V?I{0,3}) [a-z]*/gm]
 		];
 		let alphabet = "abcdefghijklmnopqrstuvwxyz";
-		for (var i = 0; i < alphabet.split("").length; i++) {
+		for (let i = 0; i < alphabet.split("").length; i++) {
 			trim_patterns.push([` ${alphabet.split("")[i]} `, `${alphabet.split("")[i]} `]);
 		}
 		
@@ -504,38 +545,23 @@
 	
 	/**
 	 * Truncates a string to a given length, appending the ellipsis afterwards.
-	 * @alias String.prototype.truncate
-	 * 
-	 * @param {string} arg0_number
-	 * @param {string} [arg1_ellipsis=" ..."]
-	 * 
+	 * @alias String.truncate
+	 *
+	 * @param {string} arg0_string
+	 * @param {number} arg1_number
+	 * @param {string} [arg2_ellipsis=" ..."]
+	 *
 	 * @returns {string}
 	 */
-	String.prototype.truncate = function (arg0_number, arg1_ellipsis) {
+	String.truncate = function (arg0_string, arg1_number, arg2_ellipsis) {
 		//Convert from parameters
-		let number = Math.returnSafeNumber(arg0_number, 120);
-		let ellipsis = (arg1_ellipsis) ? arg1_ellipsis : " ...";
+		let string = arg0_string;
+		let number = Math.returnSafeNumber(arg1_number, 120);
+		let ellipsis = (arg2_ellipsis) ? arg2_ellipsis : " ...";
 		
 		//Return statement
-		if (this.length > number)
-			return `${this.substring(0, number)}${ellipsis}`;
-		return this;
-	};
-	
-	/**
-	 * Checks whether a given string is loosely a valid URL.
-	 * @alias String.prototype.isURL
-	 * @memberof String
-	 * 
-	 * @returns {boolean}
-	 */
-	String.prototype.isURL = function () {
-		//Return statement
-		try {
-			new URL(this);
-			return true;
-		} catch (e) {
-			return false;
-		}
+		if (string.length > number)
+			return `${string.substring(0, number)}${ellipsis}`;
+		return string;
 	};
 }
