@@ -6,31 +6,63 @@
 		static input_rasters_equirectangular = `${h1}/landuse_HYDE/`;
 		static intermediate_rasters_equirectangular = `${h2}/landuse_HYDE/rasters/`;
 		
-		static async A_convertToPNGs (arg0_input_folder, arg1_output_folder, arg2_options) {
-			//Convert from parameters
+		static async A_convertToPNGs(
+			arg0_input_folder,
+			arg1_output_folder,
+			arg2_options
+		) {
+			// Convert from parameters
 			let input_folder = arg0_input_folder;
 			let output_folder = arg1_output_folder;
-			let options = (arg2_options) ? arg2_options : {};
+			let options = arg2_options ? arg2_options : {};
 			
-			//Declare local instance variables
-			let all_input_files = await File.getAllFiles(input_folder);
+			// Get all files using your existing File utility
+			// Ensure File.getAllFiles is also awaited correctly
+			const all_input_files = await File.getAllFiles(input_folder);
 			
-			//Iterate over all_input_files. Remember that HYDE entries are contained in separate directories.
-			for (let i = 0; i < all_input_files.length; i++)
-				if (fs.lstatSync(all_input_files[i]).isDirectory()) {
-					console.log(`Parsing HYDE folder: ${all_input_files[i]}`);
+			// Iterate over all_input_files
+			for (let i = 0; i < all_input_files.length; i++) {
+				let currentPath = all_input_files[i];
+				
+				//Use the promise-based lstat
+				let stats = await fs.promises.lstat(currentPath);
+				
+				if (stats.isDirectory()) {
+					console.log(`Parsing HYDE folder: ${currentPath}`);
 					
-					this.A_convertToPNGs(all_input_files[i], output_folder, options);
-				} else if (all_input_files[i].endsWith(".asc")) {
-					let local_split_path = all_input_files[i].split("\\");
-					let local_suffix = (options.mode === "percentage") ?
-						`_percentage` : `_number`;
+					// Await the recursive call so the folders are processed in order
+					await this.A_convertToPNGs(currentPath, output_folder, options);
+				} else if (currentPath.endsWith(".asc")) {
+					let local_suffix =
+						options.mode === "percentage" ? "_percentage" : "_number";
 					
-					let local_file_name = local_split_path[local_split_path.length - 1];
+					// Extract filename without extension and build output path
+					let local_file_name = path.basename(currentPath, ".asc");
+					let output_path = path.join(
+						output_folder,
+						`${local_file_name}${local_suffix}.png`
+					);
 					
-					//Convert ASC to PNG according to options
-					GeoASC.convertToPNG(all_input_files[i], `${output_folder}/${local_file_name.replace(".asc", "")}${local_suffix}.png`, options);
+					console.log(`Converting: ${local_file_name}.asc`);
+					
+					/**
+					 * Because GeoASC.convertToPNG is synchronous, we wrap it in a Promise.
+					 * We use setImmediate to push the execution to the next iteration of
+					 * the event loop. This prevents the CPU from being "locked" by this
+					 * loop if there are many files.
+					 */
+					await new Promise((resolve, reject) => {
+						setImmediate(() => {
+							try {
+								GeoASC.convertToPNG(currentPath, output_path, options);
+								resolve();
+							} catch (err) {
+								reject(err);
+							}
+						});
+					});
 				}
+			}
 		}
 		
 		static async processRasters () {
