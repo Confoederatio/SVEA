@@ -362,7 +362,7 @@
 	 * @param {Object} [arg2_options]
 	 *  @param {boolean} [arg2_options.return_index=false] - Whether to return an index.
 	 * 
-	 * @returns {boolean|number|*[]}
+	 * @returns {any[]|boolean|number}
 	 */
 	Array.selectColumn = function (arg0_dataframe, arg1_column_name, arg2_options) {
 		//Convert from parameters
