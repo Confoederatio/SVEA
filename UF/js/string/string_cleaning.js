@@ -3,14 +3,17 @@
 	if (!global.String) global.String = {};
 	
 	/**
-	 * Strips markdown from a string.
-	 * @alias String.prototype.stripMarkdown
+	 * Strips Markdown from a string.
+	 * @alias String.stripMarkdown
 	 * 
 	 * @returns {string}
 	 */
-	String.prototype.stripMarkdown = function () {
+	String.stripMarkdown = function (arg0_string) {
+		//Convert from parameters
+		let string = arg0_string;
+		
 		//Declare local instance variables
-		let processed_string = this.toString();
+		let processed_string = string.toString();
 		
 		//Return statement
 		return processed_string.replace(/(__)|(\*\*)/gm, "");
@@ -18,12 +21,17 @@
 	
 	/**
 	 * Strips all non-numeric characters (0-9) from a string.
-	 * @alias String.prototype.stripNonNumerics
+	 * @alias String.stripNonNumerics
+	 * 
+	 * @param {string} arg0_string
 	 * 
 	 * @returns {string}
 	 */
-	String.prototype.stripNonNumerics = function () {
+	String.stripNonNumerics = function (arg0_string) {
+		//Convert from parameters
+		let string = arg0_string;
+		
 		//Return statement
-		return this.replace(/[^0-9]/g, "");
+		return string.replace(/[^0-9]/g, "");
 	};
 }

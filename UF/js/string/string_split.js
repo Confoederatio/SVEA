@@ -4,25 +4,27 @@
 	
 	/**
 	 * Splits a string equally by character count.
-	 * @alias String.prototype.splitByCharacterCount
+	 * @alias String.splitByCharacterCount
 	 *
-	 * @param {number} [arg0_length=200]
+	 * @param {string} arg0_string
+	 * @param {number} [arg1_length=200]
 	 *
 	 * @returns {string[]}
 	 */
-	String.prototype.splitByCharacterCount = function (arg0_length) {
+	String.splitByCharacterCount = function (arg0_string, arg1_length) {
 		//Convert from parameters
-		let length = Math.returnSafeNumber(arg0_length, 200);
+		let string = arg0_string;
+		let length = Math.returnSafeNumber(arg1_length, 200);
 		
 		//Declare local instance variables
 		let current_string = "";
 		let string_array = [];
 		
 		//Process string
-		for (let i = 0; i < this.length; i++) {
-			current_string += this[i];
+		for (let i = 0; i < string.length; i++) {
+			current_string += string[i];
 			
-			if ((i % length === 0 || i === this.length - 1) && i !== 0) {
+			if ((i % length === 0 || i === string.length - 1) && i !== 0) {
 				string_array.push(current_string);
 				current_string = "";
 			}
@@ -36,23 +38,25 @@
 	 * Splits a string in two based on a character index. Returns a string[] with a length of 2.
 	 * @alias String.prototype.splitIndex
 	 * 
-	 * @param {number} arg0_index
+	 * @param {string} arg0_string
+	 * @param {number} arg1_index
 	 * 
 	 * @returns {string[]}
 	 */
-	String.prototype.splitIndex = function (arg0_index) {
+	String.splitIndex = function (arg0_string, arg1_index) {
 		//Convert from parameters
-		let index = Math.returnSafeNumber(arg0_index, 200);
+		let string = arg0_string;
+		let index = Math.returnSafeNumber(arg1_index, 200);
 		
 		//Return statement
-		return [this.slice(0, index), this.slice(index)];
+		return [string.slice(0, index), string.slice(index)];
 	};
 	
 	/**
 	 * Splits a string according to Markdown, preserving lists, with \n as breakpoints.
-	 * @alias String.prototype.splitMarkdown
+	 * @alias String.splitMarkdown
 	 * 
-	 * @param {string} arg0_input_string
+	 * @param {string} arg0_string
 	 * @param {Object} [arg1_options]
 	 *  @param {number} [arg1_options.maximum_characters=1024]
 	 *  @param {number} [arg1_options.maximum_lines]
@@ -60,9 +64,9 @@
 	 * 
 	 * @returns {string[]}
 	 */
-	String.prototype.splitMarkdown = function (arg0_input_string, arg1_options) {
+	String.splitMarkdown = function (arg0_string, arg1_options) {
 		//Convert from parameters
-		let input_string = arg0_input_string;
+		let input_string = arg0_string;
 		let options = (arg1_options) ? arg1_options : {};
 		
 		//Initialise options
@@ -119,7 +123,7 @@
 					let hit_maximum = false;
 					let nesting = array_string[i].getNesting();
 					
-					if (local_array_string.join("\n").length + array_string[i].length <= options.maximum_characters_per_array) {
+					if (local_array_string.join("\n").length + array_string[i].length <= options.maximum_characters) {
 						local_array_string.push(array_string[i]);
 						added_line = true;
 					} else {
@@ -175,25 +179,27 @@
 	
 	/**
 	 * Truncates a string after a given max. character length.
-	 * @alias String.prototype.truncate
+	 * @alias String.truncate
 	 * 
-	 * @param {number} [arg0_length=80]
-	 * @param {boolean} arg1_do_not_show_dots
+	 * @param {string} arg0_string
+	 * @param {number} [arg1_length=80]
+	 * @param {boolean} arg2_do_not_show_dots
 	 * 
 	 * @returns {string}
 	 */
-	String.prototype.truncate = function (arg0_length, arg1_do_not_show_dots) {
+	String.truncate = function (arg0_string, arg1_length, arg2_do_not_show_dots) {
 		//Convert from parameters
-		let number = (arg0_length) ? arg0_length : 80;
-		let do_not_show_dots = arg1_do_not_show_dots;
+		let string = arg0_string;
+		let number = (arg1_length) ? arg1_length : 80;
+		let do_not_show_dots = arg2_do_not_show_dots;
 		
 		//Return statement
-		if (this.length > number) {
-			let substring = this.substring(0, number);
+		if (string.length > number) {
+			let substring = string.substring(0, number);
 			
 			return (!do_not_show_dots) ? substring + " ..." : substring;
 		} else {
-			return this;
+			return string;
 		}
 	};
 }

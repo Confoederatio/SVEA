@@ -11,12 +11,17 @@
 	/**
 	 * Capitalises all the words in a string.
 	 * @alias String.capitalise
+	 * 
+	 * @param {string} arg0_string
 	 *
 	 * @returns {string}
 	 */
-	String.capitalise = function () {
+	String.capitalise = function (arg0_string) {
+		//Convert from parameters
+		let string = arg0_string;
+		
 		//Declare local instance variables
-		let separate_words = this.split(" ");
+		let separate_words = string.split(" ");
 		
 		//Iterate over separate_words to capitalise them
 		for (let i = 0; i < separate_words.length; i++) {
