@@ -1002,10 +1002,46 @@
 		return Array.operate(array, `n*${number}`, options);
 	};
 	
-	//STOPPED HERE
+	/**
+	 * Multiplies two matrices.
+	 * @alias Array.multiplyMatrices
+	 * 
+	 * @param {Array.<number[]>} arg0_matrix
+	 * @param {Array.<number[]>} arg1_matrix
+	 * 
+	 * @returns {Array.<number[]>}
+	 */
+	Array.multiplyMatrices = function (arg0_matrix, arg1_matrix) {
+		//Convert from parameters
+		let matrix = arg0_matrix;
+		let ot_matrix = arg1_matrix;
+		
+		//Declare local instance variables
+		let m1_rows = matrix.length;
+		let m1_columns = matrix[0].length;
+		let m2_columns = ot_matrix.length;
+		let return_matrix = [];
+		
+		//Iterate over matrix rows to multiply
+		for (let i = 0; i < m1_rows; i++) {
+			return_matrix.push([]);
+			
+			for (let x = 0; x < m2_columns; x++) {
+				let local_sum = 0;
+				
+				for (let y = 0; y < m1_columns; y++)
+					local_sum += matrix[i][y]*ot_matrix[y][x];
+				return_matrix[i][x] = local_sum;
+			}
+		}
+		
+		//Return statement
+		return return_matrix;
+	};
 	
 	/**
 	 * Applies a mathematical equation to every element of an array, recursively.
+	 * @alias Array.operate
 	 * 
 	 * @param {any[]} arg0_array
 	 * @param {string} arg1_equation - The string literal to use as an equation.<br>- 'n' represents the current array element.
@@ -1044,6 +1080,146 @@
 				}
 			}
 		});
+	};
+	
+	/**
+	 * Performs an operation when merging two arrays together, recursively.
+	 * @alias Array.operateArrays
+	 * 
+	 * @param {number[]} arg0_array - The first array to pass to operate on.
+	 * @param {number[]} arg1_array - The second array to pass to operate with.
+	 * @param {string} arg2_equation - The string literal to use as an equation.<br>- 'i' represents the corresponding element of the first array,<br>- 'x' represents the corresponding element of the second array.
+	 * @param {Object} [arg3_options]
+	 *  @param {boolean} [arg3_options.recursive=true]
+	 * 
+	 * @returns {number[]} - The 1st array.
+	 */
+	Array.operateArrays = function (arg0_array, arg1_array, arg2_equation, arg3_options) {
+		//Convert from parameters
+		let array = Array.toArray(arg0_array);
+		let ot_array = Array.toArray(arg1_array);
+		let equation = arg2_equation;
+		let options = (arg3_options) ? arg3_options : {};
+		
+		//Initialise options
+		if (options.recursive === undefined) options.recursive = true;
+		
+		//Guard clause if both arrays are empty
+		if (array.length + ot_array.length === 0) return [];
+		
+		//Declare local instance variables
+		let equation_expression = `return ${equation};`;
+		let equation_function = new Function("i", "x", equation_expression);
+		
+		//Return statement
+		return array.map((element_one, index) => {
+			let element_two = ot_array[index] || 0; //Consider missing elements as being zero
+			
+			if (Array.isArray(element_one)) {
+				//Recursively call operateArrays() on subarrays
+				if (options.recursive !== false)
+					return Array.operate(element_one, element_two, equation, options);
+			} else {
+				return equation_function(element_one, element_two);
+			}
+		});
+	};
+	
+	/**
+	 * Performs QR decomposition on a matrix.
+	 * @alias Array.QRDecompositionMatrix
+	 * 
+	 * @param {Array.<number[]>} arg0_matrix
+	 * 
+	 * @returns {{Q: Array.<number[]>, R: Array.<number[]>}}
+	 */
+	Array.QRDecompositionMatrix = function (arg0_matrix) {
+		//Convert from parameters
+		let matrix = arg0_matrix;
+		
+		//Declare local instance variables
+		let m = matrix.length;
+		let n = matrix[0].length;
+		let Q = [];
+		let R = [];
+		
+		//Initialise Q as a copy of the original matrix
+		for (let i = 0; i < m; i++)
+			Q.push(matrix[i].slice());
+		for (let i = 0; i < n; i++)
+			R.push(new Array(n).fill(0));
+		
+		//Perform Gram-Schmidt orthogonalisation
+		for (let i = 0; i < n; i++) {
+			//Compute the ith column of R
+			for (let x = 0; x <= i; x++) {
+				let local_sum = 0;
+				
+				for (let y = 0; y < m; y++)
+					local_sum += Q[y][i]*Q[y][x];
+				R[x][i] = local_sum;
+			}
+			
+			//Subtract the projections of previous basis vectors from the ith column of Q
+			for (let x = 0; x < m; x++)
+				for (let y = 0; y <= i; y++)
+					Q[x][i] -= R[y][i]*Q[x][y];
+			
+			// Normalize the ith column of Q
+			let norm = 0;
+			for (let x = 0; x < m; x++)
+				norm += Q[x][i]*Q[x][i];
+			norm = Math.sqrt(norm);
+			
+			for (let x = 0; x < m; x++)
+				Q[x][i] /= norm;
+		}
+		
+		//Return statement
+		return { Q, R };
+	};
+	
+	/**
+	 * Performs QR least squared on two matrices.
+	 * @alias Array.QRLeastSquaredMatrix
+	 * 
+	 * @param {Array.<number[]>} arg0_matrix
+	 * @param {Array.<number[]>} arg1_matrix
+	 * 
+	 * @returns {number[]}
+	 */
+	Array.QRLeastSquaredMatrix = function (arg0_matrix, arg1_matrix) {
+		//Convert from parameters
+		let A = arg0_matrix;
+		let b = arg1_matrix;
+		
+		//Declare local instance variables
+		let { Q, R } = Array.QRDecompositionMatrix(A); //Perform QR Decomposition
+		let Qt_b = []; //Calculate Q_transpose*b
+		
+		//Iterate over Q
+		for (let i = 0; i < Q[0].length; i++) {
+			let local_sum = 0;
+			
+			for (let x = 0; x < b.length; x++)
+				local_sum += Q[x][i]*b[x];
+			Qt_b.push(local_sum);
+		}
+		
+		//Back-substitution to solve Rx = Q_transpose*b
+		let n = R.length;
+		let x_vector = new Array(n).fill(0);
+		
+		for (let i = n - 1; i >= 0; i--) {
+			let local_sum = 0;
+			
+			for (let x = i + 1; x < n; x++)
+				local_sum += R[i][x]*x_vector[x];
+			x_vector[i] = (Qt_b[i] - local_sum)/R[i][i];
+		}
+		
+		//Return statement
+		return x_vector;
 	};
 	
 	/**
@@ -1089,6 +1265,62 @@
 	};
 	
 	/**
+	 * Performs successive over-relaxation (SOR) for a given matrix and target b_vectors.
+	 * @alias Array.SORMatrix
+	 * 
+	 * @param {Array.<number[]>} arg0_matrix
+	 * @param {Array.<number[]>} arg1_b_vectors
+	 * @param {number} [arg2_omega=1]
+	 * @param {Object} [arg3_options]
+	 *  @param {number} [arg3_options.max_iterations=1000]
+	 *  @param {number} [arg3_options.tolerance=1e-10]
+	 * 
+	 * @returns {number[]}
+	 */
+	Array.SORMatrix = function (arg0_matrix, arg1_b_vectors, arg2_omega, arg3_options) {
+		//Convert from parameters
+		let matrix = arg0_matrix;
+		let b_vector = arg1_b_vectors;
+		let omega = Math.returnSafeNumber(arg2_omega, 1);
+		let options = (arg3_options) ? arg3_options : {};
+		
+		//Initialise options
+		options.max_iterations = Math.returnSafeNumber(options.max_iterations, 1000);
+		options.tolerance = Math.returnSafeNumber(options.tolerance, 1e-10);
+		
+		//Declare local instance variables
+		let n = matrix.length;
+		let x = new Array(n).fill(0); // Initial guess (usually zeros)
+		
+		//Iterate over all options.max_iterations
+		for (let iter = 0; iter < options.max_iterations; iter++) {
+			let oldX = [...x];
+			
+			for (let i = 0; i < n; i++) {
+				let sigma = 0;
+				for (let j = 0; j < n; j++) {
+					if (j !== i) {
+						sigma += matrix[i][j] * x[j];
+					}
+				}
+				
+				//The SOR Formula:
+				//x_new = (1 - omega) * x_old + (omega / a_ii) * (b_i - sigma)
+				x[i] = (1 - omega) * x[i] + (omega / matrix[i][i]) * (b_vector[i] - sigma);
+			}
+			
+			// Check for convergence (stop if the change is tiny)
+			let error = 0;
+			for (let i = 0; i < n; i++)
+				error += Math.abs(x[i] - oldX[i]);
+			if (error < options.tolerance) break;
+		}
+		
+		//Return statement
+		return x;
+	};
+	
+	/**
 	 * Subtracts from an array recursively.
 	 * @alias Array.subtract
 	 * 
@@ -1130,5 +1362,77 @@
 		return Array.operate(array, ot_array, `i - x`, options);
 	};
 	
+	/**
+	 * Subtracts one matrix from another.
+	 * @alias Array.subtractMatrices
+	 * 
+	 * @param {Array.<number[]>} arg0_matrix - The 1st base matrix to subtract from.
+	 * @param {Array.<number[]>} arg1_matrix - The 2nd matrix to subtract with.
+	 * 
+	 * @returns {Array.<number[]>}
+	 */
+	Array.subtractMatrices = function (arg0_matrix, arg1_matrix) {
+		//Convert from parameters
+		let matrix = arg0_matrix;
+		let ot_matrix = arg1_matrix;
+		
+		//Declare local instance variables
+		let return_matrix = [];
+		
+		//Iterate over initial matrix to subtract second one from it
+		for (let i = 0; i < matrix.length; i++) {
+			return_matrix.push([]);
+			
+			for (let x = 0; x < matrix[0].length; x++)
+				return_matrix[i][x] = matrix[i][x] - ot_matrix[i][x];
+		}
+		
+		//Return statement
+		return return_matrix;
+	};
 	
+	/**
+	 * Transposes a matrix.
+	 * @alias Array.transposeMatrix
+	 * 
+	 * @param {Array.<number[]>} arg0_matrix
+	 * 
+	 * @returns {Array.<number[]>}
+	 */
+	Array.transposeMatrix = function (arg0_matrix) {
+		//Convert from parameters
+		let matrix = arg0_matrix;
+		
+		//Declare local instance variables
+		let columns = matrix[0].length;
+		let rows = matrix.length;
+		
+		//Create a new matrix with switched rows and columns
+		let transposed_matrix = [];
+		
+		for (let i = 0; i < columns; i++) {
+			let new_row = [];
+			
+			for (let x = 0; x < rows; x++)
+				new_row.push(matrix[i][x]);
+			
+			//Push new_row to transposed_matrix
+			transposed_matrix.push(new_row);
+		}
+		
+		//Return statement
+		return transposed_matrix;
+	};
+	
+	//KEEP AT BOTTOM! Initialise function aliases
+	{
+		/**
+		 * @type function
+		 */
+		Array.invertMatrix = Array.inverseMatrix;
+		/**
+		 * @type function
+		 */
+		Array.solveMatrices = Array.multiplyMatrices;
+	}
 }
