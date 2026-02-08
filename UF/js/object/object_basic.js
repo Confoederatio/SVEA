@@ -382,7 +382,7 @@
 	 * @param {Object} arg0_object - The object to fetch depth for.
 	 * @param {number} [arg1_depth=1] - Optimisation parameter used as an internal helper.
 	 */
-	Object.getDepth = = function (arg0_object, arg1_depth) {
+	Object.getDepth = function (arg0_object, arg1_depth) {
 		//Convert from parameters
 		let object = arg0_object;
 		let depth = (arg1_depth) ? arg1_depth : 1;
