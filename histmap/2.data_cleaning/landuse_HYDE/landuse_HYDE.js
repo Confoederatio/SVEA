@@ -53,6 +53,8 @@
 			-1000, -2000, -3000, -4000, -5000, -6000, -7000, -8000, -9000, -10000
 		];
 		
+		static input_mcevedy_json = `${h2}/landuse_HYDE/config/mcevedy_data.json`;
+		static input_raster_mcevedy = `${h2}/landuse_HYDE/config/mcevedy_subdivisions.png`;
 		static input_rasters_equirectangular = `${h1}/landuse_HYDE/`;
 		static intermediate_rasters_equirectangular = `${h2}/landuse_HYDE/rasters/`;
 		
@@ -155,7 +157,7 @@
 				if (options.skip_file_if_it_exists)
 					skip_file = fs.existsSync(local_number_output_file_path);
 				
-				log.info(`- Saving ${all_hyde_keys[i]}`);
+				console.log(`- Saving ${all_hyde_keys[i]}`);
 				
 				if (!skip_file)
 					GeoPNG.saveNumberRasterImage({
@@ -179,13 +181,49 @@
 					});
 				GeoPNG.savePercentageRasterImage(local_number_output_file_path, local_percentage_output_file_path);
 			}
+		}
+		
+		/**
+		 * Interpolates missing HYDE rasters.
+		 */
+		static async B_interpolateHYDEYearRasters () {
+			//Declare local instance variables
+			let actual_hyde_years = this.hyde_original_years;
+			let hyde_years = this.hyde_years;
+			
+			//Iterate over all hyde_years
+			for (let i = 0; i < hyde_years.length; i++)
+				if (!actual_hyde_years.includes(hyde_years[i]))
+					this.B_interpolateHYDEYearRaster(hyde_years[i]);
+		}
+		
+		static async C_clampHYDEToMcEvedy (arg0_year, arg1_options) {
+			//Convert from parameters
+			let year = parseInt(arg0_year);
+			let options = (arg1_options) ? arg1_options : {};
+			
+			//Declare local instance variables
+			let hyde_population_file_path = `${this.intermediate_rasters_equirectangular}popc_${this._getHYDEYearName(year)}_number.png`;
+			let hyde_urbc_file_path = `${this.intermediate_rasters_equirectangular}urbc_${this._getHYDEYearName(year)}_number.png`;
+			let hyde_rurc_file_path = `${this.intermediate_rasters_equirectangular}rurc_${this._getHYDEYearName(year)}_number.png`;
+			let mcevedy_obj = (options.mcevedy_obj) ? options.mcevedy_obj : await this.C_getMcEvedyObject();
+			let mcevedy_subdivisions_file_path = this.input_raster_mcevedy;
+			
+			
 		};
+		
+		static async C_getMcEvedyObject () {
+			//Return statement
+			return JSON.parse(JSON.stringify(fs.readFileSync(this.input_mcevedy_json)));
+		}
 		
 		static async processRasters () {
 			//1. Convert equirectangular rasters
 			await this.A_convertToPNGs(this.input_rasters_equirectangular, this.intermediate_rasters_equirectangular, {
 				mode: "number"
 			});
+			//2. Interpolate missing years
+			await this.B_interpolateHYDEYearRasters();
 		}
 	};
 }

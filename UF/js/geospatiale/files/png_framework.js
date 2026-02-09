@@ -258,7 +258,7 @@
 		let options = (arg0_options) ? arg0_options : {};
 		
 		//Declare local instance variables
-		let image_obj = PNG.loadNumberRasterImage(options.file_path);
+		let image_obj = GeoPNG.loadNumberRasterImage(options.file_path);
 		
 		for (let i = 0; i < image_obj.data.length; i++)
 			if (options.function)
