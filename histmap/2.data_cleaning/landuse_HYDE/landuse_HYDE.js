@@ -57,6 +57,7 @@
 		static input_raster_mcevedy = `${h2}/landuse_HYDE/config/mcevedy_subdivisions.png`;
 		static input_rasters_equirectangular = `${h1}/landuse_HYDE/`;
 		static intermediate_rasters_equirectangular = `${h2}/landuse_HYDE/rasters/`;
+		static intermediate_rasters_mcevedy = `${h2}/landuse_HYDE/rasters_mcevedy/`;
 		
 		/**
 		 * @param {number|string} arg0_year
@@ -197,7 +198,7 @@
 					this.B_interpolateHYDEYearRaster(hyde_years[i]);
 		}
 		
-		static async C_clampHYDEToMcEvedy (arg0_year, arg1_options) {
+		static async C_clampHYDEToMcEvedy (arg0_year, arg1_options) { //[WIP] - Finish function body; the logic here is malformed
 			//Convert from parameters
 			let year = parseInt(arg0_year);
 			let options = (arg1_options) ? arg1_options : {};
@@ -209,12 +210,26 @@
 			let mcevedy_obj = (options.mcevedy_obj) ? options.mcevedy_obj : await this.C_getMcEvedyObject();
 			let mcevedy_subdivisions_file_path = this.input_raster_mcevedy;
 			
+			let all_mcevedy_keys = Object.keys(mcevedy_obj);
+			let hyde_scalar_obj = {};
+			let population_image = GeoPNG.loadNumberRasterImage(hyde_population_file_path);
+			let mcevedy_colourmap_obj = {};
+			let mcevedy_subdivisions_image = pngjs.PNG.sync.read(fs.readFileSync(mcevedy_subdivisions_file_path));
 			
+			//1. Process mcevedy_obj
+			Object.iterate(mcevedy_obj, (local_key, local_value) => {
+				if (local_value.colour)
+					mcevedy_colourmap_obj[local_value.colour.join(",")] = local_key;
+				if (!local_value.hyde_population) local_value.hyde_population = {};
+			});
+			
+			//2. Process popc to sum up .hyde_population for year and calculate hyde_scalar_obj
+			console.log(mcevedy_colourmap_obj);
 		};
 		
 		static async C_getMcEvedyObject () {
 			//Return statement
-			return JSON.parse(JSON.stringify(fs.readFileSync(this.input_mcevedy_json)));
+			return JSON.parse(fs.readFileSync(this.input_mcevedy_json, "utf8"));
 		}
 		
 		static async processRasters () {
