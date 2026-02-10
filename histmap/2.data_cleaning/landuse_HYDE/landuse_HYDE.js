@@ -59,13 +59,34 @@
 		static input_rasters_equirectangular = `${h1}/landuse_HYDE/`;
 		static intermediate_rasters_equirectangular = `${h2}/landuse_HYDE/rasters/`;
 		static intermediate_rasters_mcevedy = `${h2}/landuse_HYDE/rasters_mcevedy/`;
+		static intermediate_rasters_scaled_to_global = `${h2}/landuse_HYDE/rasters_scaled_to_global/`;
+		
+		static async _checkGlobalPopulation () {
+			//Declare local instance variables
+			let hyde_years = this.hyde_years;
+			
+			//Iterate over all hyde_years before 1500AD and clamp them
+			for (let i = 0; i < hyde_years.length; i++)
+				await new Promise((resolve, reject) => {
+					setImmediate(() => {
+						try {
+							console.log(`Global population for ${this._getHYDEYearName(hyde_years[i])}:`, String.formatNumber(
+								GeoPNG.getImageSum(`${this.intermediate_rasters_scaled_to_global}/popc_${hyde_years[i]}.png`)
+							));
+							resolve();
+						} catch (err) {
+							reject(err);
+						}
+					});
+				});
+		}
 		
 		/**
 		 * @param {number|string} arg0_year
 		 *
 		 * @returns {string}
 		 */
-		static _getHYDEYearName = function (arg0_year) {
+		static _getHYDEYearName (arg0_year) {
 			//Convert from parameters
 			let year = parseInt(arg0_year);
 			
@@ -368,6 +389,43 @@
 					});
 		}
 		
+		static async D_scaleRastersToGlobalEstimates () {
+			//Declare local instance variables
+			let hyde_years = this.hyde_years;
+			let world_pop_obj = population_Global.A_getWorldPopulationObject();
+			
+			//Iterate over all hyde_years
+			for (let i = 0; i < hyde_years.length; i++) {
+				let local_input_raster = `${this.intermediate_rasters_mcevedy}/popc_${hyde_years[i]}.png`;
+				let local_scalar = 1;
+				
+				if (!fs.existsSync(local_input_raster)) //Load HYDE raster as fallback
+					local_input_raster = `${this.intermediate_rasters_equirectangular}/popc_${this._getHYDEYearName(hyde_years[i])}_number.png`;
+				if (fs.existsSync(local_input_raster)) 
+					await new Promise((resolve, reject) => {
+						setImmediate(() => {
+							try {
+								let local_input_png = GeoPNG.loadNumberRasterImage(local_input_raster);
+								let local_input_sum = GeoPNG.getImageSum(local_input_raster);
+								local_scalar = world_pop_obj[hyde_years[i]]/local_input_sum;
+								
+								GeoPNG.saveNumberRasterImage({
+									file_path: `${this.intermediate_rasters_scaled_to_global}/popc_${hyde_years[i]}.png`,
+									width: 4320,
+									height: 2160,
+									function: (local_index) => Math.round(local_input_png.data[local_index]*local_scalar)
+								});
+								
+								console.log(`- ${hyde_years[i]} - Input Population: ${local_input_sum}, Scalar: ${local_scalar}`);
+								resolve();
+							} catch (err) {
+								reject(err);
+							}
+						});
+					});
+			}
+		}
+		
 		static async processRasters () {
 			//1. Convert equirectangular rasters
 			await this.A_convertToPNGs(this.input_rasters_equirectangular, this.intermediate_rasters_equirectangular, {
@@ -377,6 +435,8 @@
 			await this.B_interpolateHYDEYearRasters();
 			//3. Clamp to McEvedy
 			await this.C_clampHYDEToMcEvedy();
+			//4. Clamp to global population estimates
+			await this.D_scaleRastersToGlobalEstimates();
 		}
 	};
 }
