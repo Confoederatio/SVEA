@@ -208,13 +208,9 @@
 			let hyde_population_file_path = `${this.intermediate_rasters_equirectangular}popc_${this._getHYDEYearName(year)}_number.png`;
 			let hyde_urbc_file_path = `${this.intermediate_rasters_equirectangular}urbc_${this._getHYDEYearName(year)}_number.png`;
 			let hyde_rurc_file_path = `${this.intermediate_rasters_equirectangular}rurc_${this._getHYDEYearName(year)}_number.png`;
+			let mcevedy_colourmap_obj = {};
 			let mcevedy_obj = (options.mcevedy_obj) ? options.mcevedy_obj : await this.C_getMcEvedyObject();
 			let mcevedy_subdivisions_file_path = this.input_raster_mcevedy;
-			
-			let all_mcevedy_keys = Object.keys(mcevedy_obj);
-			let hyde_scalar_obj = {};
-			let population_image = GeoPNG.loadNumberRasterImage(hyde_population_file_path);
-			let mcevedy_colourmap_obj = {};
 			let mcevedy_subdivisions_image = pngjs.PNG.sync.read(fs.readFileSync(mcevedy_subdivisions_file_path));
 			
 			//1. Process mcevedy_obj
@@ -226,8 +222,6 @@
 			});
 			
 			//2. Process popc to sum up .hyde_population for year and calculate hyde_scalar_obj
-			//console.log(mcevedy_colourmap_obj);
-			
 			GeoPNG.operateNumberRasterImage({
 				file_path: hyde_population_file_path,
 				function: (local_index, local_value) => {
@@ -352,6 +346,28 @@
 			return mcevedy_obj;
 		}
 		
+		static async C_clampHYDERastersToMcEvedy () {
+			//Declare local instance variables
+			let hyde_years = this.hyde_years;
+			let mcevedy_obj = await this.C_getMcEvedyObject();
+			
+			//Iterate over all hyde_years before 1500AD and clamp them
+			for (let i = 0; i < hyde_years.length; i++)
+				if (hyde_years[i] <= 1500)
+					await new Promise((resolve, reject) => {
+						setImmediate(() => {
+							try {
+								this.C_clampHYDEToMcEvedy(hyde_years[i], {
+									mcevedy_obj: mcevedy_obj
+								});
+								resolve();
+							} catch (err) {
+								reject(err);
+							}
+						});
+					});
+		}
+		
 		static async processRasters () {
 			//1. Convert equirectangular rasters
 			await this.A_convertToPNGs(this.input_rasters_equirectangular, this.intermediate_rasters_equirectangular, {
@@ -359,6 +375,8 @@
 			});
 			//2. Interpolate missing years
 			await this.B_interpolateHYDEYearRasters();
+			//3. Clamp to McEvedy
+			await this.C_clampHYDEToMcEvedy();
 		}
 	};
 }
