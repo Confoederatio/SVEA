@@ -3,6 +3,7 @@
 	if (!global.landuse_HYDE) global.landuse_HYDE = {};
 	
 	global.landuse_HYDE = class {
+		static _cache_mcevedy_obj;
 		static hyde_dictionary = {
 			//LU (Land Use)
 			"conv_rangeland": "Converted Rangeland (km^2/cell)",
@@ -198,7 +199,7 @@
 					this.B_interpolateHYDEYearRaster(hyde_years[i]);
 		}
 		
-		static async C_clampHYDEToMcEvedy (arg0_year, arg1_options) { //[WIP] - Finish function body; the logic here is malformed
+		static async C_clampHYDEToMcEvedy (arg0_year, arg1_options) {
 			//Convert from parameters
 			let year = parseInt(arg0_year);
 			let options = (arg1_options) ? arg1_options : {};
@@ -220,16 +221,135 @@
 			Object.iterate(mcevedy_obj, (local_key, local_value) => {
 				if (local_value.colour)
 					mcevedy_colourmap_obj[local_value.colour.join(",")] = local_key;
-				if (!local_value.hyde_population) local_value.hyde_population = {};
+				if (local_value.hyde_population === undefined) local_value.hyde_population = 0;
+				if (local_value.hyde_pixels === undefined) local_value.hyde_pixels = 0;
 			});
 			
 			//2. Process popc to sum up .hyde_population for year and calculate hyde_scalar_obj
-			console.log(mcevedy_colourmap_obj);
+			//console.log(mcevedy_colourmap_obj);
+			
+			GeoPNG.operateNumberRasterImage({
+				file_path: hyde_population_file_path,
+				function: (local_index, local_value) => {
+					let local_key = [
+						mcevedy_subdivisions_image.data[local_index],
+						mcevedy_subdivisions_image.data[local_index + 1],
+						mcevedy_subdivisions_image.data[local_index + 2]
+					].join(",");
+					
+					if (mcevedy_colourmap_obj[local_key]) {
+						let local_country = mcevedy_obj[mcevedy_colourmap_obj[local_key]];
+						local_country.hyde_pixels++;
+						local_country.hyde_population += local_value;
+					}
+				}
+			});
+			Object.iterate(mcevedy_obj, (local_key, local_value) => {
+				if (local_value?.population)
+					if (local_value.population[year.toString()] !== undefined) {
+						let local_mcevedy_population = local_value.population[year.toString()];
+						
+						if (local_mcevedy_population !== 0) {
+							local_value.hyde_scalar = Math.returnSafeNumber(local_mcevedy_population/local_value.hyde_population, 1);
+						} else {
+							local_value.hyde_scalar = 0;
+						}
+					}
+			});
+			
+			//3. Process hyde_population_file_path, hyde_urbc_file_path, hyde_rurc_file_path
+			let input_output_map = [
+				[hyde_population_file_path, `${this.intermediate_rasters_mcevedy}popc_${year}.png`],
+				[hyde_urbc_file_path, `${this.intermediate_rasters_mcevedy}urbc_${year}.png`],
+				[hyde_rurc_file_path, `${this.intermediate_rasters_mcevedy}rurc_${year}.png`]
+			];
+			
+			//Iterate over input_output_map and scale by .hyde_scalar
+			for (let i = 0; i < input_output_map.length; i++) {
+				let local_input_png = GeoPNG.loadNumberRasterImage(input_output_map[i][0]);
+				
+				GeoPNG.saveNumberRasterImage({
+					file_path: input_output_map[i][1],
+					width: 4320,
+					height: 2160,
+					function: (local_index) => {
+						let local_key = [
+							mcevedy_subdivisions_image.data[local_index*4],
+							mcevedy_subdivisions_image.data[local_index*4 + 1],
+							mcevedy_subdivisions_image.data[local_index*4 + 2]
+						].join(",");
+						let local_value = local_input_png.data[local_index];
+						
+						//Implement hyde_scalar
+						if (mcevedy_colourmap_obj[local_key]) {
+							let local_country = mcevedy_obj[mcevedy_colourmap_obj[local_key]];
+							
+							//Return statement
+							if (local_country.hyde_scalar !== undefined)
+								return Math.round(local_value*local_country.hyde_scalar);
+						}
+						return local_value;
+					}
+				});
+				
+				console.log(`Finished processing ${input_output_map[i][1]}`);
+				console.log(`- Input Sum:`, GeoPNG.getImageSum(input_output_map[i][0]));
+				console.log(`- Output Sum:`, GeoPNG.getImageSum(input_output_map[i][1]));
+			}
 		};
 		
 		static async C_getMcEvedyObject () {
+			if (this._cache_mcevedy_obj) return this._cache_mcevedy_obj; //Internal guard clause if this._cache_mcevedy_obj has already been calculated
+			
+			//Declare local instance variables
+			let all_hyde_years = [];
+			let hyde_years = this.hyde_years;
+			let mcevedy_obj = JSON.parse(fs.readFileSync(this.input_mcevedy_json, "utf8"));
+			
+			//Populate all_hyde_years
+			all_hyde_years = all_hyde_years.concat(hyde_years);
+			all_hyde_years = Array.sort(all_hyde_years, { mode: "ascending" });
+			
+			//Perform polynomial interpolation on McEvedy data
+			Object.iterate(mcevedy_obj, (local_key, local_value) => {
+				if (local_value.population) {
+					//Iterate over local_value.population to convert it from millions to base units
+					local_value.population = Object.multiply(local_value.population, 1000000);
+					let values = Object.values(local_value.population).map((value) => value);
+					let years = Object.keys(local_value.population).map((year) => parseInt(year));
+					
+					//Ensure values; years are sorted properly
+					let sorted_indices = years.map((_, i) => i).sort((a, b) => years[a] - years[b]);
+						years = sorted_indices.map(i => years[i]);
+						values = sorted_indices.map(i => values[i]);
+					
+					//Iterate over all_hyde_years and perform interpolation if within the given domain
+					if (values.length > 0 && years.length > 0)
+						for (let x = 0; x < all_hyde_years.length; x++)
+							if (all_hyde_years[x] >= years[0] && all_hyde_years[x] <= years[years.length - 1])
+								local_value.population[all_hyde_years[x]] = Math.round(
+									Math.returnSafeNumber(Array.cubicSplineInterpolation(years, values, all_hyde_years[x]))
+								);
+					
+					//Iterate over all hyde_years and set to 0 if first local_country.population year is < 0.0001
+					let first_population_value = local_value.population[years[0]];
+					
+					if (first_population_value < 0.0001)
+						for (let x = 0; x < all_hyde_years.length; x++)
+							if (all_hyde_years[x] <= years[0])
+								local_value.population[all_hyde_years[x]] = 0;
+					
+					//Remove any McEvedy data projected after 1975
+					Object.iterate(local_value.population, (local_subkey) => {
+						if (parseInt(local_subkey) > 1975)
+							delete local_value.population[local_key];
+					});
+				}
+			});
+			this._cache_mcevedy_obj = mcevedy_obj;
+			
 			//Return statement
-			return JSON.parse(fs.readFileSync(this.input_mcevedy_json, "utf8"));
+			return mcevedy_obj;
 		}
 		
 		static async processRasters () {

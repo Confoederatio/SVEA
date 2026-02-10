@@ -250,7 +250,7 @@
 	/**
 	 * operateNumberRasterImage() - Runs an operation on a raster image for a file.
 	 * @param {Object} [arg0_options]
-	 *  @param {String} [arg0_options.file_path] - The file path to save the image to.
+	 *  @param {String} [arg0_options.file_path] - The file path to load from.
 	 *  @param {Function} [arg0_options.function] - (arg0_index, arg1_number)
 	 */
 	GeoPNG.operateNumberRasterImage = function (arg0_options) {

@@ -3,6 +3,7 @@ global.child_process = require("child_process");
 global.cubic_spline = require("cubic-spline");
 global.electron = require("electron");
 global.fs = require("fs");
+global.JSON5 = require("json5");
 global.mathjs = require("mathjs");
 global.ml_matrix = require("ml-matrix");
 global.netcdfjs = require("netcdfjs");
