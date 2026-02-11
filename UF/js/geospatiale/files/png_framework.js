@@ -280,12 +280,12 @@
 	/**
 	 * saveNumberRasterImage() - Saves a number raster image to a file.
 	 * @param {Object} [arg0_options]
-	 *  @param {String} [arg0_options.file_path] - The file path to save the image to.
-	 *  @param {String} [arg0_options.type="32bit_int_positive"] - How to save colours to the end image. Either '32bit_int_positive'/'greyscale'.
+	 *  @param {string} [arg0_options.file_path] - The file path to save the image to.
+	 *  @param {string} [arg0_options.type="32bit_int_positive"] - How to save colours to the end image. Either '32bit_int_positive'/'greyscale'.
 	 *
-	 *  @param {Number} [arg0_options.height=1] - The height of the image to save.
-	 *  @param {Number} [arg0_options.width=1] - The width of the image to save.
-	 *  @param {Function} [arg0_options.function] - (arg0_index) - The function to apply to each pixel. Must return a number. [0, 0, 0, 0] if undefined.
+	 *  @param {number} [arg0_options.height=1] - The height of the image to save.
+	 *  @param {number} [arg0_options.width=1] - The width of the image to save.
+	 *  @param {function} [arg0_options.function] - (arg0_index) - The function to apply to each pixel. Must return a number. [0, 0, 0, 0] if undefined.
 	 */
 	GeoPNG.saveNumberRasterImage = function (arg0_options) {
 		//Convert from parameters
@@ -394,7 +394,7 @@
 	 * saveNumberToPixel() - Saves an int value to a pixel based on the corresponding index.
 	 * @param {string} arg0_image_object - The image object to use.
 	 * @param {number} arg1_index - The index of the pixel to save the number to.
-	 * @param {number} arg2_number - The number to save to the pixel.
+	 * @param {number|string} arg2_number - The number to save to the pixel.
 	 * @param {string} [arg3_type="32bit_int_positive"] - Either '32bit_int_positive'/'greyscale'.
 	 *
 	 * @returns {number[]}
