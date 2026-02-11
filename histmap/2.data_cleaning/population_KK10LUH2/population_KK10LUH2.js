@@ -16,10 +16,10 @@
 		static input_owid_json = `${h2}/population_KK10LUH2/config/owid_colourmap.json5`;
 		static input_owid_raster = `${h2}/population_KK10LUH2/config/owid_continents.png`;
 		static intermediate_luh2_rasters = `${h2}/population_KK10LUH2/rasters_LUH2_anthropogenic_mean/`;
-		static intermediate_luh2kk10_greyscale_rasters = `${h2}/population_KK10LUH2/rasters_LUH2KK10_greyscale/`;
-		static intermediate_luh2kk10_rasters = `${h2}/population_KK10LUH2/rasters_LUH2KK10/`;
-		static intermediate_luh2kk10_regional_rasters = `${h2}/population_KK10LUH2/rasters_LUH2KK10_1._regional_scaling/`;
-		static intermediate_luh2kk10_global_rasters = `${h2}/population_KK10LUH2/rasters_LUH2KK10_2._global_scaling/`;
+		static intermediate_kk10_luh2_greyscale_rasters = `${h2}/population_KK10LUH2/rasters_KK10_LUH2_greyscale/`;
+		static intermediate_kk10_luh2_rasters = `${h2}/population_KK10LUH2/rasters_KK10_LUH2/`;
+		static intermediate_kk10_luh2_regional_rasters = `${h2}/population_KK10LUH2/rasters_KK10_LUH2_1._regional_scaling/`;
+		static intermediate_kk10_luh2_global_rasters = `${h2}/population_KK10LUH2/rasters_KK10_LUH2_2._global_scaling/`;
 		
 		static async A_getNelsonDataObject () {
 			//Internal guard clause if _cache_nslon_data_obj is already defined
@@ -85,7 +85,7 @@
 			for (let i = 0; i < hyde_years.length; i++) try {
 				let in_luh2_domain = (hyde_years[i] >= this.luh2_domain[0] && hyde_years[i] <= this.luh2_domain[1]);
 				let in_kk10_domain = (hyde_years[i] >= this.kk10_domain[0] && hyde_years[i] <= this.kk10_domain[1]);
-				let output_file_path = `${this.intermediate_luh2kk10_greyscale_rasters}KK10LUH2_${hyde_years[i]}.png`;
+				let output_file_path = `${this.intermediate_kk10_luh2_greyscale_rasters}KK10LUH2_${hyde_years[i]}.png`;
 				
 				if (in_luh2_domain || in_kk10_domain) {
 					//1. If this is an intersection of both the luh2_domain and kk10_domain; average rasters
@@ -134,8 +134,8 @@
 			
 			//Iterate over all hyde_years and check if the corresponding raster file exists
 			for (let i = 0; i < hyde_years.length; i++) {
-				let input_file_path = `${this.intermediate_luh2kk10_greyscale_rasters}KK10LUH2_${hyde_years[i]}.png`;
-				let output_file_path = `${this.intermediate_luh2kk10_rasters}KK10LUH2_${hyde_years[i]}.png`;
+				let input_file_path = `${this.intermediate_kk10_luh2_greyscale_rasters}KK10LUH2_${hyde_years[i]}.png`;
+				let output_file_path = `${this.intermediate_kk10_luh2_rasters}KK10LUH2_${hyde_years[i]}.png`;
 				
 				if (fs.existsSync(input_file_path)) {
 					let greyscale_image = GeoPNG.loadImage(input_file_path);
@@ -216,7 +216,7 @@
 				
 				//Fetch .KK10LUH2_population for all regions
 				GeoPNG.operateNumberRasterImage({
-					file_path: `${this.intermediate_luh2kk10_rasters}KK10LUH2_${hyde_years[i]}.png`,
+					file_path: `${this.intermediate_kk10_luh2_rasters}KK10LUH2_${hyde_years[i]}.png`,
 					function: (local_index, local_value) => {
 						let local_key = [
 							nelson_png.data[local_index],
@@ -236,9 +236,9 @@
 				});
 				
 				//Apply scalar to resulting raster
-				let local_input_png = GeoPNG.loadNumberRasterImage(`${this.intermediate_luh2kk10_rasters}KK10LUH2_${hyde_years[i]}.png`);
+				let local_input_png = GeoPNG.loadNumberRasterImage(`${this.intermediate_kk10_luh2_rasters}KK10LUH2_${hyde_years[i]}.png`);
 				GeoPNG.saveNumberRasterImage({
-					file_path: `${this.intermediate_luh2kk10_regional_rasters}popc_${hyde_years[i]}.png`,
+					file_path: `${this.intermediate_kk10_luh2_regional_rasters}popc_${hyde_years[i]}.png`,
 					width: 4320,
 					height: 2160,
 					function: (local_index) => {
@@ -257,7 +257,7 @@
 					}
 				});
 				
-				console.log(`- Finished scaling LUH2KK10 ${hyde_years[i]} to regional HYDE aggregates ..`)
+				console.log(`- Finished scaling KK10_LUH2 ${hyde_years[i]} to regional HYDE aggregates ..`)
 			}
 		}
 		
@@ -317,7 +317,7 @@
 			//Iterate over all hyde_years
 			for (let i = 0; i < hyde_years.length; i++) {
 				//Adjust raster image to OWID/HYDE
-				let local_input_file_path = `${this.intermediate_luh2kk10_regional_rasters}popc_${hyde_years[i]}.png`;
+				let local_input_file_path = `${this.intermediate_kk10_luh2_regional_rasters}popc_${hyde_years[i]}.png`;
 				let local_input_raster = GeoPNG.loadNumberRasterImage(local_input_file_path);
 				
 				console.log(`- Standardising to OWID for ${hyde_years[i]} ..`);
@@ -327,7 +327,7 @@
 					
 					//Populate local_owid_obj
 					GeoPNG.operateNumberRasterImage({
-						file_path: `${this.intermediate_luh2kk10_regional_rasters}popc_${hyde_years[i]}.png`,
+						file_path: `${this.intermediate_kk10_luh2_regional_rasters}popc_${hyde_years[i]}.png`,
 						function: (local_index, local_value) => {
 							let local_colour_key = [
 								owid_png.data[local_index],
@@ -352,7 +352,7 @@
 					console.log(` - Local OWID scalars:`, local_owid_scalars);
 					
 					GeoPNG.saveNumberRasterImage({
-						file_path: `${this.intermediate_luh2kk10_regional_rasters}popc_${hyde_years[i]}.png`,
+						file_path: `${this.intermediate_kk10_luh2_regional_rasters}popc_${hyde_years[i]}.png`,
 						height: 2160,
 						width: 4320,
 						function: (local_index) => {
@@ -389,7 +389,7 @@
 			
 			//Iterate over all hyde_years
 			for (let i = 0; i < hyde_years.length; i++) {
-				let local_input_file_path = `${this.intermediate_luh2kk10_regional_rasters}popc_${hyde_years[i]}.png`;
+				let local_input_file_path = `${this.intermediate_kk10_luh2_regional_rasters}popc_${hyde_years[i]}.png`;
 				let local_scalar = 1;
 				
 				if (fs.existsSync(local_input_file_path))
@@ -401,7 +401,7 @@
 								local_scalar = world_pop_obj[hyde_years[i]]/local_input_sum;
 								
 								GeoPNG.saveNumberRasterImage({
-									file_path: `${this.intermediate_luh2kk10_global_rasters}/popc_${hyde_years[i]}.png`,
+									file_path: `${this.intermediate_kk10_luh2_global_rasters}/popc_${hyde_years[i]}.png`,
 									width: 4320,
 									height: 2160,
 									function: (local_index) => Math.round(local_input_png.data[local_index]*local_scalar)
