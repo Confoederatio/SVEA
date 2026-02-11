@@ -12,9 +12,14 @@
 		static input_kk10_folder = `${h1}/population_KK10LUH2/KK10/`;
 		static input_nelson_json = `${h2}/population_KK10LUH2/config/nelson_data.json5`;
 		static input_nelson_raster = `${h2}/population_KK10LUH2/config/nelson_regions.png`;
+		static input_owid_csv = `${h2}/population_KK10LUH2/config/owid_data.csv`;
+		static input_owid_json = `${h2}/population_KK10LUH2/config/owid_colourmap.json5`;
+		static input_owid_raster = `${h2}/population_KK10LUH2/config/owid_continents.png`;
 		static intermediate_luh2_rasters = `${h2}/population_KK10LUH2/rasters_LUH2_anthropogenic_mean/`;
 		static intermediate_luh2kk10_greyscale_rasters = `${h2}/population_KK10LUH2/rasters_LUH2KK10_greyscale/`;
 		static intermediate_luh2kk10_rasters = `${h2}/population_KK10LUH2/rasters_LUH2KK10/`;
+		static intermediate_luh2kk10_regional_rasters = `${h2}/population_KK10LUH2/rasters_LUH2KK10_1._regional_scaling/`;
+		static intermediate_luh2kk10_global_rasters = `${h2}/population_KK10LUH2/rasters_LUH2KK10_2._global_scaling/`;
 		
 		static async A_getNelsonDataObject () {
 			//Internal guard clause if _cache_nslon_data_obj is already defined
@@ -165,7 +170,7 @@
 					});
 				} else {
 					//Simply copy over the original HYDE raster otherwise
-					let hyde_file_path = `${landuse_HYDE.intermediate_rasters_scaled_to_global}/popc_${hyde_years[i]}.png`;
+					let hyde_file_path = `${landuse_HYDE.intermediate_rasters_scaled_to_global}popc_${hyde_years[i]}.png`;
 					
 					console.log(`- Copying HYDE-McEvedy for GeoPNG for ${hyde_years[i]} ..`);
 					fs.copyFileSync(hyde_file_path, output_file_path);
@@ -176,17 +181,240 @@
 		static async D_scaleKK10LUH2RastersToHYDE () {
 			//Declare local instance variables
 			let hyde_years = landuse_HYDE.hyde_years;
+			let nelson_obj = structuredClone(await this.A_getNelsonDataObject());
 			let nelson_png = GeoPNG.loadImage(this.input_nelson_raster);
 			
 			//Iterate over all hyde_years and fetch the sum per Nelson region
+			for (let i = 0; i < hyde_years.length; i++) {
+				let local_regions_obj = {};
+				
+				Object.iterate(nelson_obj.regions, (local_key, local_value) => {
+					if (local_value?.colour)
+						local_regions_obj[local_value.colour.join(",")] = {
+							name: local_key,
+							HYDE_population: 0,
+							KK10LUH2_population: 0,
+							scalar: 1
+						};
+				});
+				
+				//Fetch .HYDE_population for all regions
+				GeoPNG.operateNumberRasterImage({
+					file_path: `${landuse_HYDE.intermediate_rasters_scaled_to_global}/popc_${hyde_years[i]}.png`,
+					function: (local_index, local_value) => {
+						let local_key = [
+							nelson_png.data[local_index],
+							nelson_png.data[local_index + 1],
+							nelson_png.data[local_index + 2]
+						].join(",");
+						let local_region = local_regions_obj[local_key];
+						
+						if (local_region)
+							local_region.HYDE_population += local_value;
+					}
+				});
+				
+				//Fetch .KK10LUH2_population for all regions
+				GeoPNG.operateNumberRasterImage({
+					file_path: `${this.intermediate_luh2kk10_rasters}KK10LUH2_${hyde_years[i]}.png`,
+					function: (local_index, local_value) => {
+						let local_key = [
+							nelson_png.data[local_index],
+							nelson_png.data[local_index + 1],
+							nelson_png.data[local_index + 2]
+						].join(",");
+						let local_region = local_regions_obj[local_key];
+						
+						if (local_region)
+							local_region.KK10LUH2_population += local_value;
+					}
+				});
+				
+				//Calculate scalars
+				Object.iterate(local_regions_obj, (local_key, local_value) => {
+					local_value.scalar = Math.returnSafeNumber(local_value.HYDE_population/local_value.KK10LUH2_population, 1);
+				});
+				
+				//Apply scalar to resulting raster
+				let local_input_png = GeoPNG.loadNumberRasterImage(`${this.intermediate_luh2kk10_rasters}KK10LUH2_${hyde_years[i]}.png`);
+				GeoPNG.saveNumberRasterImage({
+					file_path: `${this.intermediate_luh2kk10_regional_rasters}popc_${hyde_years[i]}.png`,
+					width: 4320,
+					height: 2160,
+					function: (local_index) => {
+						let local_key = [
+							nelson_png.data[local_index*4],
+							nelson_png.data[local_index*4 + 1],
+							nelson_png.data[local_index*4 + 2]
+						].join(",");
+						let local_region = local_regions_obj[local_key];
+						let local_value = local_input_png.data[local_index];
+						
+						//Return statement
+						if (local_region?.scalar !== undefined)
+							return Math.round(local_value*local_region.scalar);
+						return local_value;
+					}
+				});
+				
+				console.log(`- Finished scaling LUH2KK10 ${hyde_years[i]} to regional HYDE aggregates ..`)
+			}
+		}
+		
+		static async E_getOWIDDataObject () {
+			//Declare local instance variables
+			let owid_colours_obj = {};
+			let owid_colourmap = JSON5.parse(fs.readFileSync(this.input_owid_json, "utf8"));
+			let owid_obj = File.loadCSVAsJSON(this.input_owid_csv, { mode: "vertical" });
+			
+			//Iterate over all regions
+			Object.iterate(owid_obj, (local_key, local_value) => {
+				//Delete .Code, map years and population to numbers
+				delete local_value["Code"];
+				local_value["Year"] = local_value["Year"].map(Number);
+				local_value["Population (historical)"] = local_value["Population (historical)"].map(Number);
+				
+				//Set local_region.key
+				local_value.key = local_key;
+				
+				if (owid_colourmap[local_key])
+					local_value.colour = owid_colourmap[local_key].colour;
+				if (local_value.colour)
+					owid_colours_obj[local_value.colour.join(",")] = local_value;
+			});
+			
+			//Process .Year, .Population arrays into objects
+			Object.iterate(owid_obj, (local_key, local_value) => {
+				//Set .population object
+				let local_population = {};
+				
+				//Iterate over all .Year elements
+				console.log(local_key, local_value)
+				if (local_value?.Year)
+					for (let x = 0; x < local_value.Year.length; x++)
+						local_population[local_value.Year[x]] = Math.returnSafeNumber(local_value["Population (historical)"][x]);
+				
+				//Delete un-necessary fields
+				local_value.population = local_population;
+				
+				delete local_value["Population (historical)"];
+				delete local_value.Year;
+			});
+			
+			//Return statement
+			return {
+				...owid_obj,
+				...owid_colours_obj
+			};
 		}
 		
 		static async E_scaleKK10LUH2RastersToOWID () {
+			//Declare local instance variables
+			let hyde_years = landuse_HYDE.hyde_years;
+			let owid_obj = structuredClone(await this.E_getOWIDDataObject());
+			let owid_png = GeoPNG.loadImage(this.input_owid_raster);
 			
+			//Iterate over all hyde_years
+			for (let i = 0; i < hyde_years.length; i++) {
+				//Adjust raster image to OWID/HYDE
+				let local_input_file_path = `${this.intermediate_luh2kk10_regional_rasters}popc_${hyde_years[i]}.png`;
+				let local_input_raster = GeoPNG.loadNumberRasterImage(local_input_file_path);
+				
+				console.log(`- Standardising to OWID for ${hyde_years[i]} ..`);
+				if (fs.existsSync(local_input_file_path)) {
+					let local_owid_obj = {};
+					let local_owid_scalars = {};
+					
+					//Populate local_owid_obj
+					GeoPNG.operateNumberRasterImage({
+						file_path: `${this.intermediate_luh2kk10_regional_rasters}popc_${hyde_years[i]}.png`,
+						function: (local_index, local_value) => {
+							let local_colour_key = [
+								owid_png.data[local_index],
+								owid_png.data[local_index + 1],
+								owid_png.data[local_index + 2]
+							].join(",");
+							let local_region = owid_obj[local_colour_key];
+							
+							if (local_region)
+								Object.modifyValue(local_owid_obj, local_colour_key, local_value);
+						}
+					});
+					
+					//Iterate over all_owid_regions, populate local_owid_scalars
+					Object.iterate(owid_obj, (local_key, local_value) => {
+						let local_actual_population = Math.returnSafeNumber(local_value.population[hyde_years[i]], 1);
+						let local_current_population = local_owid_obj[local_key];
+						
+						local_owid_scalars[local_value.colour.join(",")] = Math.returnSafeNumber(local_actual_population/local_current_population, 1);
+					});
+					console.log(` - Local OWID object:`, local_owid_obj);
+					console.log(` - Local OWID scalars:`, local_owid_scalars);
+					
+					GeoPNG.saveNumberRasterImage({
+						file_path: `${this.intermediate_luh2kk10_regional_rasters}popc_${hyde_years[i]}.png`,
+						height: 2160,
+						width: 4320,
+						function: (local_index) => {
+							let byte_index = local_index*4;
+							let local_colour_key = [
+								owid_png.data[byte_index],
+								owid_png.data[byte_index + 1],
+								owid_png.data[byte_index + 2]
+							].join(",");
+							let local_region = owid_obj[local_colour_key];
+							let local_value = local_input_raster.data[local_index];
+							
+							//Adjust to OWID if possible
+							if (local_region) {
+								local_value *= local_owid_scalars[local_colour_key];
+							} else {
+								local_value = 0;
+							}
+							
+							//Return statement
+							return local_value;
+						}
+					});
+				} else {
+					console.log(` - Could not find input raster.`)
+				}
+			}
 		}
 		
 		static async F_scaleKK10LUH2RastersToGlobal () {
+			//Declare local instance variables
+			let hyde_years = landuse_HYDE.hyde_years;
+			let world_pop_obj = population_Global.A_getWorldPopulationObject();
 			
+			//Iterate over all hyde_years
+			for (let i = 0; i < hyde_years.length; i++) {
+				let local_input_file_path = `${this.intermediate_luh2kk10_regional_rasters}popc_${hyde_years[i]}.png`;
+				let local_scalar = 1;
+				
+				if (fs.existsSync(local_input_file_path))
+					await new Promise((resolve, reject) => {
+						setImmediate(() => {
+							try {
+								let local_input_png = GeoPNG.loadNumberRasterImage(local_input_file_path);
+								let local_input_sum = GeoPNG.getImageSum(local_input_file_path);
+								local_scalar = world_pop_obj[hyde_years[i]]/local_input_sum;
+								
+								GeoPNG.saveNumberRasterImage({
+									file_path: `${this.intermediate_luh2kk10_global_rasters}/popc_${hyde_years[i]}.png`,
+									width: 4320,
+									height: 2160,
+									function: (local_index) => Math.round(local_input_png.data[local_index]*local_scalar)
+								});
+								
+								console.log(`- ${hyde_years[i]} - Input Population: ${local_input_sum}, Scalar: ${local_scalar}`);
+								resolve();
+							} catch (err) {
+								reject(err);
+							}
+						});
+					});
+			}
 		}
 		
 		static async processRasters () {
