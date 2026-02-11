@@ -14,6 +14,7 @@
 		static input_nelson_raster = `${h2}/population_KK10LUH2/config/nelson_regions.png`;
 		static intermediate_luh2_rasters = `${h2}/population_KK10LUH2/rasters_LUH2_anthropogenic_mean/`;
 		static intermediate_luh2kk10_greyscale_rasters = `${h2}/population_KK10LUH2/rasters_LUH2KK10_greyscale/`;
+		static intermediate_luh2kk10_rasters = `${h2}/population_KK10LUH2/rasters_LUH2KK10/`;
 		
 		static async A_getNelsonDataObject () {
 			//Internal guard clause if _cache_nslon_data_obj is already defined
@@ -123,13 +124,68 @@
 		
 		static async C_convertKK10LUH2RastersToRGBA () {
 			//Declare local instance variables
+			let hyde_years = landuse_HYDE.hyde_years;
+			let world_pop_obj = population_Global.A_getWorldPopulationObject();
+			
+			//Iterate over all hyde_years and check if the corresponding raster file exists
+			for (let i = 0; i < hyde_years.length; i++) {
+				let input_file_path = `${this.intermediate_luh2kk10_greyscale_rasters}KK10LUH2_${hyde_years[i]}.png`;
+				let output_file_path = `${this.intermediate_luh2kk10_rasters}KK10LUH2_${hyde_years[i]}.png`;
+				
+				if (fs.existsSync(input_file_path)) {
+					let greyscale_image = GeoPNG.loadImage(input_file_path);
+					let greyscale_sum = 0;
+					let local_world_pop = world_pop_obj[hyde_years[i]];
+					
+					//Iterate over all pixels in greyscale_image
+					for (let x = 0; x < greyscale_image.width; x++)
+						for (let y = 0; y < greyscale_image.height; y++) {
+							let local_index = (greyscale_image.width*y + x) << 2; //4 bytes per pixel (RGBA)
+							let r = greyscale_image.data[local_index];
+							
+							greyscale_sum += r/255;
+						}
+					
+					let population_per_pixel = local_world_pop/greyscale_sum;
+					
+					//Save number raster image
+					console.log(`- Converting KK10_LUH2 from greyscale to GeoPNG for ${hyde_years[i]} ..`);
+					GeoPNG.saveNumberRasterImage({
+						file_path: output_file_path,
+						height: greyscale_image.height,
+						width: greyscale_image.width,
+						
+						function: function (arg0_index) {
+							//Convert from parameters
+							let local_index = arg0_index*4; //Index must be multiplied by 4 since we are using loadImage(), and not loadNumberRasterImage()
+							
+							//Return statement
+							return (greyscale_image.data[local_index]/255)*population_per_pixel;
+						}
+					});
+				} else {
+					//Simply copy over the original HYDE raster otherwise
+					let hyde_file_path = `${landuse_HYDE.intermediate_rasters_scaled_to_global}/popc_${hyde_years[i]}.png`;
+					
+					console.log(`- Copying HYDE-McEvedy for GeoPNG for ${hyde_years[i]} ..`);
+					fs.copyFileSync(hyde_file_path, output_file_path);
+				}
+			}
 		}
 		
-		static async D_scaleKK10LUH2RastersToRegional () {
+		static async D_scaleKK10LUH2RastersToHYDE () {
+			//Declare local instance variables
+			let hyde_years = landuse_HYDE.hyde_years;
+			let nelson_png = GeoPNG.loadImage(this.input_nelson_raster);
+			
+			//Iterate over all hyde_years and fetch the sum per Nelson region
+		}
+		
+		static async E_scaleKK10LUH2RastersToOWID () {
 			
 		}
 		
-		static async E_scaleKK10LUH2RastersToGlobal () {
+		static async F_scaleKK10LUH2RastersToGlobal () {
 			
 		}
 		
@@ -138,6 +194,14 @@
 			await this.A_averageLUH2Rasters();
 			//2. Convert greyscale images to GeoPNGs
 			await this.B_generateKK10LUH2Rasters();
+			//3. Convert greyscale images to RGBA
+			await this.C_convertKK10LUH2RastersToRGBA();
+			//4. Scale KK10LUH2 to regional totals from HYDE
+			await this.D_scaleKK10LUH2RastersToHYDE();
+			//5. Scale KK10LUH2 to regional totals from OWID
+			await this.E_scaleKK10LUH2RastersToOWID();
+			//6. Scale KK10LUH2 to global totals
+			await this.F_scaleKK10LUH2RastersToGlobal();
 		}
 	};
 }
