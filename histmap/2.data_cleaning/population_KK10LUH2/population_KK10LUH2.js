@@ -111,16 +111,12 @@
 					}
 					
 					//2. If this is of only the kk10_domain; merely copy the kk10 raster to its destination
-					if (in_kk10_domain && !in_luh2_domain) {
+					if (in_kk10_domain && !in_luh2_domain)
 						fs.copyFileSync(kk10_file_path, output_file_path);
-						continue;
-					}
 					
 					//3. If this is of only the luh2_domain; merely copy the luh2 raster to its destination
-					if (in_luh2_domain && !in_kk10_domain) {
+					if (in_luh2_domain && !in_kk10_domain)
 						fs.copyFileSync(luh2_file_path, output_file_path);
-						continue;
-					}
 				}
 			} catch (e) { console.error(e); }
 		}
