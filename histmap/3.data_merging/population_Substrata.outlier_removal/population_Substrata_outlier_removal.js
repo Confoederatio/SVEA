@@ -3,6 +3,7 @@ global.population_Substrata_outlier_removal = class {
 	static input_outlier_rasters = `${this.bf}rasters_outliers/`;
 	static intermediate_global_rasters = `${this.bf}rasters_1.scaled_to_global/`;
 	static intermediate_outliers_removed_rasters = `${this.bf}rasters_outliers_removed/`;
+	static intermediate_rasters_northern_america = `${this.bf}rasters_2.northern_america/`;
 	
 	static async A_getHYDEOutlierMasksObject () {
 		//Declare local instance variables
