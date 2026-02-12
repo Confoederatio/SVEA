@@ -1,7 +1,5 @@
 //Initialise functions
 {
-	if (!global.landuse_HYDE) global.landuse_HYDE = {};
-	
 	global.landuse_HYDE = class {
 		static _cache_mcevedy_obj;
 		static hyde_dictionary = {

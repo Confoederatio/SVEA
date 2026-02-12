@@ -1,7 +1,5 @@
 //Initialise functions
 {
-	if (!global.population_KK10LUH2) global.population_KK10LUH2 = {};
-	
 	global.population_KK10LUH2 = class {
 		static kk10_domain = [-6051, 1850];
 		static luh2_domain = [900, 2018];
@@ -19,7 +17,7 @@
 		static intermediate_kk10_luh2_greyscale_rasters = `${h2}/population_KK10LUH2/rasters_KK10_LUH2_greyscale/`;
 		static intermediate_kk10_luh2_rasters = `${h2}/population_KK10LUH2/rasters_KK10_LUH2/`;
 		static intermediate_kk10_luh2_regional_rasters = `${h2}/population_KK10LUH2/rasters_KK10_LUH2_1._regional_scaling/`;
-		static intermediate_kk10_luh2_global_rasters = `${h2}/population_KK10LUH2/rasters_KK10_LUH2_2._global_scaling/`;
+		static output_kk10_luh2_global_rasters = `${h2}/population_KK10LUH2/rasters_KK10LUH2_2._global_scaling/`;
 		
 		static async A_getNelsonDataObject () {
 			//Internal guard clause if _cache_nslon_data_obj is already defined
@@ -401,7 +399,7 @@
 								local_scalar = world_pop_obj[hyde_years[i]]/local_input_sum;
 								
 								GeoPNG.saveNumberRasterImage({
-									file_path: `${this.intermediate_kk10_luh2_global_rasters}/popc_${hyde_years[i]}.png`,
+									file_path: `${this.output_kk10_luh2_global_rasters}/popc_${hyde_years[i]}.png`,
 									width: 4320,
 									height: 2160,
 									function: (local_index) => Math.round(local_input_png.data[local_index]*local_scalar)
