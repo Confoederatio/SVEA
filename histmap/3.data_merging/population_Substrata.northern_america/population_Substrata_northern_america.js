@@ -270,9 +270,12 @@ global.population_Substrata_northern_america = class {
 		return northern_america_obj;
 	}
 	
-	static async A_generateStadesterNorthernAmericaRasters () {
+	static async A_generateStadesterNorthernAmericaRasters (arg0_options) {
+		//Convert from parameters
+		let options = (arg0_options) ? arg0_options : {};
+		
 		//Declare local instance variables
-		let hyde_years = landuse_HYDE.sorted_hyde_years;
+		let hyde_years = (options.hyde_years) ? options.hyde_years : landuse_HYDE.sorted_hyde_years;
 		let land_area_raster = GeoPNG.loadNumberRasterImage(metadata_HYDE.input_raster_land_area);
 		let northern_america_obj = await this.A_getNorthernAmericaPopulationObject();
 		let raster_obj = {};
@@ -469,5 +472,6 @@ global.population_Substrata_northern_america = class {
 	static async processRasters () {
 		//1. Process Northern America rasters into main outliers folder
 		await this.A_generateStadesterNorthernAmericaRasters();
+		await this.A_generateStadesterNorthernAmericaRasters({ hyde_years: [1600] }); //Temporary patch for 1600AD due to out of memory alloc
 	}
 }
