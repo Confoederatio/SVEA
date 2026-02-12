@@ -465,4 +465,9 @@ global.population_Substrata_northern_america = class {
 			}
 		}
 	}
+	
+	static async processRasters () {
+		//1. Process Northern America rasters into main outliers folder
+		await this.A_generateStadesterNorthernAmericaRasters();
+	}
 }
