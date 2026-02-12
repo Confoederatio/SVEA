@@ -71,9 +71,10 @@ let win;
 
 //App handling
 {
+  app.commandLine.appendSwitch("enable-features", "SharedArrayBuffer");
+  
   //Launch app when ready
   app.whenReady().then(() => {
-
     //Create the window and instantiate it
     createWindow();
 
