@@ -1,6 +1,7 @@
 # Archives
 UF/archives
 settings
+svea_settings.json
 .ve-sm
 
 # Handle CDS
@@ -164,3 +165,4 @@ dist
 # Vite logs files
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
+svea_settings.json

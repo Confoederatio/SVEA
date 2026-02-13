@@ -2,6 +2,7 @@
 global.child_process = require("child_process");
 global.cubic_spline = require("cubic-spline");
 global.electron = require("electron");
+global.exec = require("child_process").exec;
 global.fs = require("fs");
 global.JSDOM = require("jsdom").JSDOM;
 global.JSON5 = require("json5");
@@ -12,6 +13,8 @@ global.path = require("path");
 global.pngjs = require("pngjs");
 global.polylabel = require("polylabel");
 global.util = require("util");
+if (fs.existsSync("svea_settings.json"))
+	global.svea_settings = JSON.parse(fs.readFileSync("svea_settings.json", "utf8"));
 
 global.h1 = "./histmap/1.data_scraping/";
 global.h2 = "./histmap/2.data_cleaning/";

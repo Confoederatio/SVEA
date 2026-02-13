@@ -1,6 +1,7 @@
 global.population_urban_WorldCityPop = class {
 	static _cache_dom;
 	static input_population_html = `${h1}/population_urban_WorldCityPop/_worldcitypop.htm`;
+	static intermediate_worldcitypop_json = `${h2}/population_urban_WorldCityPop/worldcitypop.json`;
 	
 	static async A_getWorldCityPopObject () {
 		//Declare local instance variables
@@ -47,5 +48,54 @@ global.population_urban_WorldCityPop = class {
 		
 		//Return statement
 		return pop_obj;
+	}
+	
+	static async B_geolocateWorldCityPopObject () {
+		if (fs.existsSync(this.intermediate_worldcitypop_json))
+			return JSON.parse(fs.readFileSync(this.intermediate_worldcitypop_json, "utf8")); //Internal guard clause 
+			
+		//Declare local instance variables
+		let world_city_pop_obj = await this.A_getWorldCityPopObject();
+		console.log(`Fetched world_city_pop_obj.`);
+		
+		//Iterate over world_city_pop_obj
+		let all_cities = Object.keys(world_city_pop_obj);
+		
+		for (let i = 0; i < all_cities.length; i++) {
+			let local_value = world_city_pop_obj[all_cities[i]];
+			
+			local_value.coords = await Geospatiale.getGoogleMapsCityCoords(`${local_value.name}, ${local_value.country}`, {
+				google_maps_api_key: svea_settings.gmaps_api_key
+			});
+			world_city_pop_obj[all_cities[i]] = local_value;
+			console.log(`Gmaps (${i}/${all_cities.length}): Geolocated ${local_value.name}, ${local_value.country}:`, local_value.coords);
+		}
+		
+		fs.writeFileSync(this.intermediate_worldcitypop_json, JSON.stringify(world_city_pop_obj), "utf8");
+		console.log(`Wrote geolocated file to (1/2): ${this.intermediate_worldcitypop_json}`);
+		
+		//Iterate over world_city_pop_obj to geolocate [0, 0] cities using OSM
+		for (let i = 0; i < all_cities.length; i++) {
+			let local_value = world_city_pop_obj[all_cities[i]];
+			
+			if (local_value.coords)
+				if (local_value.coords[0] === 0 && local_value.coords[1] === 0) {
+					local_value.coords = await Geospatiale.getOSMCityCoords(`${local_value.name}`);
+					
+					world_city_pop_obj[all_cities[i]] = local_value;
+					console.log(`OSM (${i}/${all_cities.length}): Geolocated ${local_value.name}, ${local_value.country}:`, local_value.coords);
+				}
+		}
+		
+		fs.writeFileSync(this.intermediate_worldcitypop_json, JSON.stringify(world_city_pop_obj), "utf8");
+		console.log(`Wrote geolocated file to (2/2): ${this.intermediate_worldcitypop_json}`);
+		
+		//Return statement
+		return world_city_pop_obj;
+	}
+	
+	static async processRasters () {
+		//1. Fetch world city population object
+		await this.B_geolocateWorldCityPopObject();
 	}
 };
