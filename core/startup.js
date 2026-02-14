@@ -13,8 +13,6 @@ global.path = require("path");
 global.pngjs = require("pngjs");
 global.polylabel = require("polylabel");
 global.util = require("util");
-if (fs.existsSync("svea_settings.json"))
-	global.svea_settings = JSON.parse(fs.readFileSync("svea_settings.json", "utf8"));
 
 global.h1 = "./histmap/1.data_scraping/";
 global.h2 = "./histmap/2.data_cleaning/";
@@ -29,6 +27,7 @@ global.h6 = "./histmap/6.data_visualisation/";
 		//KEEP AT TOP! Make sure file paths exist
 		{
 			if (!fs.existsSync("./saves/")) fs.mkdirSync("./saves/");
+			loadSettings();
 		}
 		
 		//Initialise global.scene
@@ -114,7 +113,16 @@ global.h6 = "./histmap/6.data_visualisation/";
 		
 		//2. Set aliases
 		main.brush = main.user.brush;
-  }
+  };
+	
+	global.loadSettings = function () {
+		//Try to read from svea_settings.json if possible
+		if (fs.existsSync("svea_settings.json")) {
+			global.svea_settings = JSON.parse(fs.readFileSync("svea_settings.json", "utf8"));
+		} else {
+			console.warn(`svea_settings.json is not defined. API secrets and processes will not be processed.`);
+		}
+	};
 
   function trackPerformance () {
     //Declare local instance variables

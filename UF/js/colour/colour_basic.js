@@ -225,6 +225,55 @@
 	};
 	
 	/**
+	 * Returns the actual [R, G, B, A] colour of a given string. Depends on a browser/HTML context to work.
+	 * @alias Colour.getActualColour
+	 * 
+	 * @param {any} arg0_colour
+	 * 
+	 * @returns {number[]|any}
+	 */
+	Colour.getActualColour = function (arg0_colour) {
+		//Convert from parameters
+		let colour = arg0_colour;
+		
+		if (Array.isArray(colour)) return colour; //Internal guard clause if the colour is already an array
+		
+		try {
+			//Declare local instance variables
+			let colour_el = document.createElement("div");
+				colour_el.style.color = colour;
+			document.body.appendChild(colour_el);	
+			
+			let actual_colour = window.getComputedStyle(colour_el).color;
+				colour_el.remove();
+			
+			if (actual_colour.startsWith("rgb(") || actual_colour.startsWith("rgba(")) {
+				actual_colour = actual_colour.replace("rgb(", "")
+					.replace("rgba(", "")
+					.replace(")", "");
+				actual_colour = actual_colour.split(",");
+				
+				//Iterate over actual_colour and set it
+				for (let i = 0; i < actual_colour.length; i++)
+					actual_colour[i] = parseFloat(actual_colour[i].trim());
+				if (actual_colour.length >= 4)
+					actual_colour[3] *= 255;
+			}
+			
+			//Return statement
+			return actual_colour;
+		} catch (e) { console.error(e); }
+		
+		//Return statement - [WIP] - Temporary guard clause; requires actual array of named colours for robust return
+		return [0, 0, 0];
+	};
+	
+	Colour.getBestTextColour = function (arg0_colour) { //[WIP] - Finish function body
+		//Convert from parameters
+		let colour = arg0_colour;
+	};
+	
+	/**
 	 * Encodes a number as an RGBA pixel.
 	 * @alias Colour.encodeNumberAsRGBA
 	 * 
