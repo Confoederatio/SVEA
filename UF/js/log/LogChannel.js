@@ -17,8 +17,13 @@
 			let options = (arg1_options) ? arg1_options : {};
 			
 			//Initialise options
+			let bg_colour = (options.colour) ? 
+				options.colour : ve.registry.settings.Channel.default_bg_colour;
+			let text_colour = (options.text_colour) ? 
+				options.text_colour : ve.registry.settings.Channel.default_text_colour
+			
 			let default_post_css = `background: transparent; color: inherit;`;
-			let default_pre_css = `background: ${(options.colour) ? options.colour : ve.registry.settings.Channel.default_bg_colour}; color: ${(options.text_colour) ? options.text_colour : ve.registry.settings.Channel.default_text_colour}; padding: 2px 5px; border-radius: 3px; font-weight: bold;`;
+			let default_pre_css = `background: ${bg_colour}; color: ${text_colour}; padding: 2px 5px; border-radius: 3px; font-weight: bold;`;
 			
 			options.post_css = (options.post_css) ? `${default_post_css} ${options.post_css}` : default_post_css;
 			options.pre_css = (options.pre_css) ? `${default_pre_css} ${options.pre_css}` : default_pre_css;
@@ -38,8 +43,20 @@
 			log.Channel.instances.push(this);
 		}
 		
+		close () {
+			
+		}
+		
+		drawComponent () {
+			
+		}
+		
 		log (...args) {
 			this.print("log", args);
+		}
+		
+		open () {
+			
 		}
 		
 		/**
@@ -48,7 +65,7 @@
 		 * @param {Array} args - The arguments passed to the log function
 		 */
 		print (level, args) {
-			const template = `%c${this.key.toUpperCase()}%c `;
+			let template = `%c${this.key.toUpperCase()}%c `;
 			
 			//If the first argument is a string, we can merge it into the template; this allows the user to still use %s, %d, etc. in their own messages
 			if (typeof args[0] === "string") {
@@ -65,7 +82,13 @@
 		}
 		
 		remove () {
+			//Iterate over all channels and remove it
+			for (let i = 0; i < log.Channel.instances.length; i++)
+				if (log.Channel.instances[i] === this.key)
+					log.Channel.instances.splice(i, 1);
 			
+			//Remove log[key]
+			delete log[this.key];
 		}
 	};
 }

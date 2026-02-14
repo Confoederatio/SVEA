@@ -226,13 +226,13 @@
 	
 	/**
 	 * Returns the actual [R, G, B, A] colour of a given string. Depends on a browser/HTML context to work.
-	 * @alias Colour.getActualColour
+	 * @alias Colour.getColour
 	 * 
 	 * @param {any} arg0_colour
 	 * 
 	 * @returns {number[]|any}
 	 */
-	Colour.getActualColour = function (arg0_colour) {
+	Colour.getColour = function (arg0_colour) {
 		//Convert from parameters
 		let colour = arg0_colour;
 		
@@ -264,13 +264,37 @@
 			return actual_colour;
 		} catch (e) { console.error(e); }
 		
-		//Return statement - [WIP] - Temporary guard clause; requires actual array of named colours for robust return
-		return [0, 0, 0];
+		//Return statement
+		if (Colour._map[colour]) colour = Colour._map[colour];
+		return Colour.convertHexToRGBA(colour);
 	};
 	
-	Colour.getBestTextColour = function (arg0_colour) { //[WIP] - Finish function body
+	/**
+	 * Returns the best text colour given a certain colour background. Either 'black'/'white'.
+	 * @alias Colour.getBestTextColour
+	 * 
+	 * @param {number[]|string} arg0_colour
+	 * @param {Object} [arg1_options]
+	 *  @param {boolean} [arg1_options.return_rgb=false]
+	 * 
+	 * @returns {number[]|string}
+	 */
+	Colour.getBestTextColour = function (arg0_colour, arg1_options) { //[WIP] - Finish function body
 		//Convert from parameters
-		let colour = arg0_colour;
+		let colour = Colour.getColour(arg0_colour);
+		let options = (arg1_options) ? arg1_options : {};
+		
+		//Declare local instance variables
+		let luminance = Colour.getLuminance(colour);
+		
+		let best_colour = (luminance > 0.179) ? "black" : "white";
+		
+		//Return statement
+		if (options.return_rgb) {
+			if (best_colour === "black") return [0, 0, 0];
+			if (best_colour === "white") return [255, 255, 255];
+		}
+		return best_colour;
 	};
 	
 	/**
@@ -292,6 +316,28 @@
 		
 		//Return statement
 		return [r, g, b, a];
+	};
+	
+	/**
+	 * Returns the luminance of a given colour.
+	 * @alias Colour.getLuminance
+	 * 
+	 * @param {number[]|string} arg0_colour
+	 * 
+	 * @returns {number}
+	 */
+	Colour.getLuminance = function (arg0_colour) {
+		//Convert from parameters
+		let colour = Colour.getColour(arg0_colour);
+		
+		//Declare local instance variables
+		let a = colour.map((v) => {
+			v /= 255;
+			return v <= 0.03928 ? v/12.92 : Math.pow((v + 0.055)/1.055, 2.4);
+		});
+		
+		//Return statement
+		return a[0]*0.2126 + a[1]*0.7152 + a[2]*0.0722;
 	};
 	
 	/**
