@@ -61,7 +61,7 @@ global.path = require("path");
 					
 					Channel: {
 						default_bg_colour: "#2196F3",
-						default_text_colour: "white"
+						default_text_colour: "auto"
 					},
 					
 					/**
