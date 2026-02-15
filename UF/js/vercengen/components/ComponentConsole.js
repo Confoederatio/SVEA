@@ -6,7 +6,9 @@
  * 
  * @type {ve.Log}
  */
-ve.Log = class extends ve.Component { //[WIP] - Finish GUI later
+ve.Log = class extends ve.Component { //[WIP] - Finish Component body
+	static instances = [];
+	
 	constructor (arg0_value, arg1_options) {
 		//Convert from parameters
 		let value = arg0_value;
@@ -39,6 +41,8 @@ ve.Log = class extends ve.Component { //[WIP] - Finish GUI later
 					special_function: () => this.console_el.innerHTML = ""
 				});
 			}, { name: "Clear Console" }),
+		}, {
+			style: { whiteSpace: "nowrap" }
 		});
 		this.console_el = document.createElement("div");
 		this.draw();
@@ -50,6 +54,7 @@ ve.Log = class extends ve.Component { //[WIP] - Finish GUI later
 	
 	draw () {
 		//Declare local instance variables
+		let components_obj = {};
 		let search_select_obj = {};
 		
 		//Iterate over all log.Channel.instances and append them to search_select_el as buttons
@@ -67,28 +72,32 @@ ve.Log = class extends ve.Component { //[WIP] - Finish GUI later
 			search_select_obj[local_log_channel.key] = local_html_obj;
 		}
 		
-		this.interface = new ve.FlexInterface({
-			search_select_el: new ve.SearchSelect({
+		components_obj = {
+			search_select: new ve.SearchSelect({
 				...search_select_obj
 			}, {
 				search_keys: ["_name"],
 			}),
-			console_el: new ve.HTML(this.console_el),
+			console_el: new ve.HTML(this.console_el, {
+				style: { paddingLeft: "var(--padding)" }
+			}),
 			type: "horizontal"
-		});
-		this.interface.bind(this.element);
+		};
+		
+		if (!this.interface) {
+			this.interface = new ve.FlexInterface(components_obj);
+			this.interface.bind(this.element);
+		} else {
+			this.interface.v = components_obj;
+		}
 	}
 	
 	openChannel (arg0_log_key) {
 		//Convert from parameters
 		let log_key = (arg0_log_key) ? arg0_log_key : log.Channel.instances?.[0]?.key;
 		
-		console.log("Hello")
-		
 		if (!log_key) return; //Internal guard clause if log_key is undefined
 		if (!log[log_key]) return; //Internal guard clause if no log object matches this channel
-		
-		console.log("Hello 2")
 		
 		//Declare local instance variables
 		let log_obj;
@@ -104,7 +113,8 @@ ve.Log = class extends ve.Component { //[WIP] - Finish GUI later
 		this.console_el.appendChild(log_obj.log_el);
 		this.actions_bar_el.bind(this.console_el);
 		
-		//Reset 'active' class, then apply to new class
+		//Update draw call
+		this.draw();
 	}
 };
 
