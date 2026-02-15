@@ -98,8 +98,7 @@
 			
 			//Push to current this.log_el
 			let local_msg_el = document.createElement("div");
-				local_msg_el.style.alignItems = "flex-start";
-				local_msg_el.style.display = "flex";
+				local_msg_el.classList.add("uf-log-line");
 				local_msg_el.classList.add(type);
 				argn_arguments.forEach((local_arg) => {
 					let part_el = document.createElement("span");
@@ -147,6 +146,13 @@
 			
 			//Remove log[key]
 			delete log[this.key];
+		}
+		
+		/**
+		 * Updates all associated {@link ve.Log} components to ensure that they remain in-sync.
+		 */
+		static update () {
+			
 		}
 	};
 }

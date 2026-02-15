@@ -17,6 +17,10 @@
 .uf-expanded, .uf-expanded * {
     animation: uf-expand ease 0.5s forwards;
 }
+.uf-log-line {
+    align-items: flex-start;
+    display: flex;
+}
 .uf-minimised, .uf-minimised * {
     animation: uf-minimise ease 0.5s forwards;
 }
